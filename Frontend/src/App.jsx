@@ -9,6 +9,8 @@ function App() {
   const [sectorId, setSectorId] = useState(1);
   const [isLogged, setIsLogged] = useState(!!localStorage.getItem("userId"));
   const [view, setView] = useState("login");
+  const [myReservations, setMyReservations] = useState([]);
+  const [showReservations, setShowReservations] = useState(false); // Para mostrar/ocultar la seccion
 
   const loadSeats = () => {
     fetch(`http://localhost:5171/api/v1/events/${sectorId}/seats`)
@@ -39,24 +41,56 @@ function App() {
 
   const handleConfirm = async () => {
     const userId = localStorage.getItem("userId");
+    
+    // VALIDACIÓN EXTRA: Si no hay usuario, no disparamos el fetch
+    if (!userId) {
+      alert("Error: No se encontró sesión de usuario. Por favor, reingresá.");
+      return;
+    }
+
     if (selectedSeats.length === 0) return;
+
     try {
       const response = await fetch("http://localhost:5171/api/v1/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: parseInt(userId), seatIds: selectedSeats })
+        body: JSON.stringify({ 
+            userId: parseInt(userId), 
+            seatIds: selectedSeats 
+        })
       });
+
       if (!response.ok) {
+        // Aquí capturamos los errores del ReservationResult (SeatNotFound, Conflict, etc.)
         const text = await response.text();
         alert("Error al reservar: " + text);
         return;
       }
+
       alert("Reserva realizada con éxito");
       setSelectedSeats([]); 
-      loadSeats();
+      loadSeats(); // Esto refresca el mapa y los pone en ROJO
     } catch (error) {
-      console.error(error);
-      alert("Error de conexión");
+      console.error("Error de conexión:", error);
+      alert("Error de conexión con el servidor");
+    }
+  };
+
+const loadMyReservations = async () => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    try {
+      const response = await fetch(`http://localhost:5171/api/v1/reservations/user/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setMyReservations(data);
+        setShowReservations(true);
+      } else {
+        alert("No se pudieron cargar tus reservas.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
     }
   };
 
@@ -185,7 +219,7 @@ function App() {
         })}
       </div>
 
-      {/* BOTONES DE ACCIÓN */}
+     {/* BOTONES DE ACCIÓN */}
       <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
         <button 
           disabled={selectedSeats.length === 0}
@@ -224,8 +258,69 @@ function App() {
         </button>
       </div>
 
-    </div>
+      <div style={{ marginTop: '30px' }}>
+        <button 
+          onClick={showReservations ? () => setShowReservations(false) : loadMyReservations}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: 'transparent',
+            color: '#00a8ff',
+            border: '1px solid #00a8ff',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          {showReservations ? "Ocultar mis reservas" : "Ver mis reservas"}
+        </button>
+      </div>
+
+      {showReservations && (
+        <div style={{ 
+          marginTop: '20px', 
+          padding: '20px', 
+          backgroundColor: '#1a1a1a', 
+          borderRadius: '10px',
+          border: '1px solid #333'
+        }}>
+          <h2 style={{ color: '#ffffff' }}>Mis Tickets</h2>
+          {myReservations.length === 0 ? (
+            <p style={{ color: '#888' }}>Aún no tenés asientos reservados.</p>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #444' }}>
+                  <th style={{ padding: '10px' }}>Evento</th>
+                  <th style={{ padding: '10px' }}>Asiento</th>
+                  <th style={{ padding: '10px' }}>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myReservations.map((res, index) => (
+    <tr key={index} style={{ borderBottom: '1px solid #222' }}>
+      
+      <td style={{ padding: '10px' }}>Concierto de Rock</td>
+      
+   <td style={{ padding: '10px' }}>
+  
+  Asiento N° {res.seatNumber || res.SeatNumber}
+</td>
+      
+      <td style={{ padding: '10px' }}>
+        {new Date(res.reservedAt).toLocaleDateString()}
+      </td>
+    </tr>
+  ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+    </div> 
   );
 }
 
 export default App;
+
+   
