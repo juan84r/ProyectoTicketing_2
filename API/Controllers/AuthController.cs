@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.UseCases.Auth;
 
-
 namespace API.Controllers;
 
 [ApiController]
@@ -45,8 +44,5 @@ public class AuthController : ControllerBase
 
     return Ok("Usuario creado");
     }
-    
-
-
 
 }

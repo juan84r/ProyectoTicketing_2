@@ -28,7 +28,7 @@ function Login({ onLogin }) {
       if (data.role === "Admin") {
         navigate("/admin");
       } else {
-        navigate("/eventos"); // <-- Redirige a la lista
+        navigate("/eventos"); 
       }
 
       if (onLogin) onLogin();

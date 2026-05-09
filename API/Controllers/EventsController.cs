@@ -1,5 +1,5 @@
 using Application.UseCases.Events.Queries;
-using Application.Interfaces; // IMPORTANTE: Para IEventRepository
+using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -20,7 +20,7 @@ public class EventsController : ControllerBase
     {
         _getEventsHandler = getEventsHandler;
         _getSeatsHandler = getSeatsHandler;
-        _eventRepository = eventRepository; // <--- 3. La asignamos
+        _eventRepository = eventRepository; 
     }
 
     [HttpGet]

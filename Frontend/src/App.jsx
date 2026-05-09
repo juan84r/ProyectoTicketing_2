@@ -33,7 +33,7 @@ function App() {
   // 2. CARGAR ASIENTOS CUANDO CAMBIA EL SECTOR
   const loadSeats = () => {
     if (!sectorId) return;
-    // URL Corregida para tu EventsController
+    
     fetch(`http://localhost:5171/api/v1/events/${sectorId}/seats`)
       .then(res => res.json())
       .then(data => setSeats(data))
@@ -46,7 +46,7 @@ function App() {
     }
   }, [sectorId, isLogged]);
 
-  // --- LÓGICA DE SELECCIÓN (Igual a la que tenías) ---
+  // --- LÓGICA DE SELECCIÓN ---
   const toggleSeat = (seatId, status) => {
     if (status !== 'Available') return;
     setSelectedSeats(prev => 

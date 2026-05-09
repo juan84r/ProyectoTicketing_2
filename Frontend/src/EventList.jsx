@@ -15,7 +15,7 @@ const EventList = () => {
   }, []);
 
   const fetchMyReservations = async () => {
-    // IMPORTANTE: Asegurate que en el Login guardes el userId así: 
+     
     // localStorage.setItem("userId", user.id);
     const userId = localStorage.getItem("userId");
     

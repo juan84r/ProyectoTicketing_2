@@ -19,11 +19,11 @@ public class GenerateEventHandler
 {
     try
     {
-        // 1. Crear Evento - MODIFICADO AQUÍ
+        // 1. Crear Evento - MODIFICADO
         var newEvent = new Event 
         { 
             Name = command.Name,
-            Venue = command.Venue // <--- Ahora toma el lugar que viene del Admin
+            Venue = command.Venue 
         };
         
         await _eventRepository.AddAsync(newEvent);
@@ -35,7 +35,7 @@ public class GenerateEventHandler
             var sector = new Sector {
                 Name = $"Sector {((char)('A' + i))}",
                 EventId = newEvent.Id,
-                Price = command.Price // Aprovechamos para asignar el precio si no estaba
+                Price = command.Price 
             };
             
             if (newEvent.Sectors == null) newEvent.Sectors = new List<Sector>();

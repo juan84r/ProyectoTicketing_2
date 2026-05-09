@@ -10,7 +10,6 @@ public class AdminController : ControllerBase
 {
     private readonly GenerateEventHandler _handler;
 
-    // El controlador SOLO necesita el Handler, nada de DbContext
     public AdminController(GenerateEventHandler handler)
     {
         _handler = handler;

@@ -26,7 +26,6 @@ public class SeatRepository : ISeatRepository
         await _context.SaveChangesAsync();
     }
 
-    // --- AGREGÁ ESTE MÉTODO PARA QUE COMPILE LA INTERFAZ ---
     public async Task AddAsync(Seat seat)
     {
         // Preparamos el asiento para ser insertado en la tabla Seats

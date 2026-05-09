@@ -1,7 +1,7 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Domain.Entities;
-using Domain.Exceptions; // IMPORTANTE: Agregamos esto
+using Domain.Exceptions;
 
 namespace Application.UseCases.Events.Queries;
 

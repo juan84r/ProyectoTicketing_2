@@ -35,20 +35,24 @@ public class ReservationsController : ControllerBase
     }
 
     // Endpoint que llama tu Frontend para "Ver mis reservas"
-    [HttpGet("user/{userId}")]
+
+[HttpGet("user/{userId}")]
 public async Task<IActionResult> GetByUser(int userId)
 {
+    // 1. Obtenemos las reservas usando el repositorio
     var reservations = await _reservationRepository.GetByUserIdAsync(userId);
-    
-    // Mapeamos a un formato que React entienda fácil (todo en minúsculas para evitar líos)
-    var response = reservations.Select(r => new {
-        id = r.Id,
-        reservedAt = r.ReservedAt,
-        seatNumber = r.SeatNumber,
-        eventName = r.Seat?.Sector?.Event?.Name ?? "Evento no especificado",
-        sectorName = r.Seat?.Sector?.Name ?? "Sector no especificado"
-    });
 
-    return Ok(response);
+    // 2. IMPORTANTE: Mapeamos a un objeto simple (DTO anónimo) 
+    // para evitar el error de referencia circular (Stack Overflow)
+    var result = reservations.Select(r => new {
+        id = r.Id,
+        seatNumber = r.SeatNumber,
+        reservedAt = r.ReservedAt,
+        // Usamos "?" para evitar errores si algo falta
+        eventName = r.Seat?.Sector?.Event?.Name ?? "Evento no encontrado",
+        sectorName = r.Seat?.Sector?.Name ?? "Sector no encontrado"
+    }).ToList();
+
+    return Ok(result);
 }
 }

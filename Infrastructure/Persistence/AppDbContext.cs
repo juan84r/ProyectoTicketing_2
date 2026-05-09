@@ -35,8 +35,8 @@ public class AppDbContext : DbContext
         // --- PRECARGA DE DATOS (SEEDING) ---
         
         // 1. Crear el Administrador por defecto
-        // NOTA: Usamos una contraseña fija. Si usas BCrypt en el Login, 
-        // asegúrate de que el Hash coincida.
+        // NOTA: Usamos una contraseña fija. Si usas BCrypt en el Login
+        
         modelBuilder.Entity<User>().HasData(new User
         {
             Id = 1,
