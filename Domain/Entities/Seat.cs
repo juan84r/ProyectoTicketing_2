@@ -8,9 +8,14 @@ public class Seat
     public int SectorId { get; set; }
     public string RowIdentifier { get; set; } = string.Empty;
     public int SeatNumber { get; set; }
-    public string Status { get; set; } = "Available";
+    public string Status { get; set; } = "Available"; // "Available", "Reserved", "Sold"
 
-    public Sector Sector {get; set;} = null!;
+    // --- NUEVOS CAMPOS PARA EL BLOQUEO TEMPORAL ---
+    public DateTime? LockUntil { get; set; } // Fecha y hora en que expira el bloqueo
+    public int? LockedByUserId { get; set; } // ID del usuario que lo tiene "congelado"
+    // ----------------------------------------------
+
+    public Sector Sector { get; set; } = null!;
 
     [ConcurrencyCheck]
     public int Version { get; set; } 

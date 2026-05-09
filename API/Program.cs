@@ -5,7 +5,8 @@ using Application.Interfaces;
 using Application.UseCases.Events.Queries;
 using Microsoft.EntityFrameworkCore;
 using Application.UseCases.Auth;
-using Application.UseCases.Reservations; // Asegurate de que esta ruta sea la correcta para CreateReservationHandler
+using Application.UseCases.Reservations; 
+using Application.UseCases.Seats.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,53 @@ builder.Services.AddScoped<RegisterHandler>();
 
 // Reservas
 builder.Services.AddScoped<CreateReservationHandler>();
+// 3. INYECCIÓN DE DEPENDENCIAS (Inyección de Repositorios y Handlers)
+// ==========================================================================
+
+// --- REPOSITORIOS (Infrastructure) ---
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+
+// --- CASOS DE USO / HANDLERS (Application) ---
+
+// Gestión de Eventos
+builder.Services.AddScoped<GetEventsHandler>();
+builder.Services.AddScoped<GetSeatsBySectorHandler>();
+builder.Services.AddScoped<GenerateEventHandler>(); // El motor de creación de asientos
+
+// Autenticación
+builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<RegisterHandler>();
+
+// Reservas
+builder.Services.AddScoped<CreateReservationHandler>();
+// 3. INYECCIÓN DE DEPENDENCIAS (Inyección de Repositorios y Handlers)
+// ==========================================================================
+
+// --- REPOSITORIOS (Infrastructure) ---
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISeatRepository, SeatRepository>();
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IAuditRepository, AuditRepository>();
+
+// --- CASOS DE USO / HANDLERS (Application) ---
+
+// Gestión de Eventos
+builder.Services.AddScoped<GetEventsHandler>();
+builder.Services.AddScoped<GetSeatsBySectorHandler>();
+builder.Services.AddScoped<GenerateEventHandler>(); // El motor de creación de asientos
+
+// Autenticación
+builder.Services.AddScoped<LoginHandler>();
+builder.Services.AddScoped<RegisterHandler>();
+
+// Reservas
+builder.Services.AddScoped<CreateReservationHandler>();
+builder.Services.AddScoped<LockSeatHandler>();
 
 // ==========================================================================
 // 4. CONFIGURACIÓN DE CORS

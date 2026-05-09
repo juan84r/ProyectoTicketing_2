@@ -8,4 +8,5 @@ public interface ISeatRepository
     Task<Seat?> GetByIdAsync(Guid id); 
     Task UpdateAsync(Seat seat);
     Task AddAsync(Seat seat); // Este lo necesitamos para generar asientos
+    Task SaveChangesAsync();
 }

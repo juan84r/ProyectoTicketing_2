@@ -22,56 +22,69 @@ public class CreateReservationHandler
     }
 
     public async Task<ReservationResult> Handle(CreateReservationRequest request)
-{
-    // Validamos primero todos los datos para evitar modificaciones parciales en la base de datos
-    var seats = new List<Seat>();
-
-    foreach (var seatId in request.SeatIds)
     {
-        var seat = await _seatRepository.GetByIdAsync(seatId);
+        var seats = new List<Seat>();
 
-        if (seat == null)
-            return ReservationResult.SeatNotFound;
-
-        if (seat.Status != "Available")
-            return ReservationResult.SeatAlreadyReserved;
-
-        seats.Add(seat);
-    }
-
-    var user = await _userRepository.GetByIdAsync(request.UserId);
-
-    if (user == null)
-        return ReservationResult.UserNotFound;
-
-    
-    foreach (var seat in seats)
-    {
-        seat.Status = "Reserved";
-        await _seatRepository.UpdateAsync(seat);
-
-        var reservation = new Reservation
+        foreach (var seatId in request.SeatIds)
         {
-            Id = Guid.NewGuid(),
-            SeatId = seat.Id,
-            UserId = request.UserId,
-            ReservedAt = DateTime.UtcNow,
-            SeatNumber = seat.SeatNumber
-        };
+            var seat = await _seatRepository.GetByIdAsync(seatId);
 
-        await _reservationRepository.AddAsync(reservation);
+            if (seat == null)
+                return ReservationResult.SeatNotFound;
 
-        var log = new AuditLog
+            // --- CAMBIO CLAVE AQUÍ ---
+            // Un asiento se puede comprar si:
+            // 1. Está "Available"
+            // 2. Está "Reserved" PERO el LockedByUserId es el mismo que el de la request
+            bool isAvailable = seat.Status == "Available";
+            bool isMyLock = seat.Status == "Reserved" && seat.LockedByUserId == request.UserId;
+
+            if (!isAvailable && !isMyLock)
+                return ReservationResult.SeatAlreadyReserved;
+            // -------------------------
+
+            seats.Add(seat);
+        }
+
+        var user = await _userRepository.GetByIdAsync(request.UserId);
+
+        if (user == null)
+            return ReservationResult.UserNotFound;
+
+        foreach (var seat in seats)
         {
-            Action = "Seat Reserved",
-            User = user.Email, // Se usa email en auditoría para que el registro sea legible
-            Resource = $"Asiento {seat.SeatNumber}",
-            Timestamp = DateTime.UtcNow
-        };
+            // Cambiamos a "Sold" (Vendido) para que ya no figure como reservado temporal
+            seat.Status = "Sold"; 
+            seat.LockedByUserId = null; // Limpiamos el bloqueo
+            seat.LockUntil = null;      // Limpiamos el tiempo
+            
+            await _seatRepository.UpdateAsync(seat);
 
-        await _auditRepository.AddAsync(log);
+            var reservation = new Reservation
+            {
+                Id = Guid.NewGuid(),
+                SeatId = seat.Id,
+                UserId = request.UserId,
+                ReservedAt = DateTime.UtcNow,
+                SeatNumber = seat.SeatNumber
+            };
+
+            await _reservationRepository.AddAsync(reservation);
+
+            var log = new AuditLog
+            {
+                Action = "Seat Purchased", // Cambié el texto para diferenciarlo del bloqueo
+                User = user.Email,
+                Resource = $"Asiento {seat.SeatNumber}",
+                Timestamp = DateTime.UtcNow
+            };
+
+            await _auditRepository.AddAsync(log);
+        }
+
+        
+        await _seatRepository.SaveChangesAsync();
+
+        return ReservationResult.Success;
     }
-
-    return ReservationResult.Success;
-}
 }

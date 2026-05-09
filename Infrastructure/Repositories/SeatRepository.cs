@@ -31,4 +31,8 @@ public class SeatRepository : ISeatRepository
         // Preparamos el asiento para ser insertado en la tabla Seats
         await _context.Seats.AddAsync(seat);
     }
+    public async Task SaveChangesAsync()
+{
+    await _context.SaveChangesAsync();
+}
 }

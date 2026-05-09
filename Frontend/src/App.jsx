@@ -5,15 +5,20 @@ import Login from "./Login";
 import Register from "./Register";
 
 function App() {
-  const { eventId } = useParams(); // Obtenemos el ID del evento de la URL
+  const { eventId } = useParams();
   const navigate = useNavigate();
   
+  // --- ESTADOS PRINCIPALES ---
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
-  const [sectors, setSectors] = useState([]); // Ahora los sectores vienen de la DB
+  const [sectors, setSectors] = useState([]);
   const [sectorId, setSectorId] = useState(null);
   const [isLogged, setIsLogged] = useState(!!localStorage.getItem("userId"));
   const [view, setView] = useState("login");
+
+  // --- ESTADOS DEL BLOQUEO Y RELOJ ---
+  const [isPaying, setIsPaying] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutos en segundos
 
   // 1. CARGAR SECTORES DINÁMICAMENTE
   useEffect(() => {
@@ -23,17 +28,16 @@ function App() {
         .then(data => {
           setSectors(data);
           if (data && data.length > 0) {
-            setSectorId(data[0].id); // Selecciona el primer sector automáticamente
+            setSectorId(data[0].id);
           }
         })
         .catch(err => console.error("Error cargando sectores:", err));
     }
   }, [eventId, isLogged]);
 
-  // 2. CARGAR ASIENTOS CUANDO CAMBIA EL SECTOR
+  // 2. CARGAR ASIENTOS
   const loadSeats = () => {
     if (!sectorId) return;
-    
     fetch(`http://localhost:5171/api/v1/events/${sectorId}/seats`)
       .then(res => res.json())
       .then(data => setSeats(data))
@@ -46,33 +50,93 @@ function App() {
     }
   }, [sectorId, isLogged]);
 
-  // --- LÓGICA DE SELECCIÓN ---
+  // --- LÓGICA DEL CRONÓMETRO ---
+  useEffect(() => {
+    let timer;
+    if (isPaying && timeLeft > 0) {
+      timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    } else if (timeLeft === 0) {
+      handleCancelPayment(); // Liberar si se acaba el tiempo
+    }
+    return () => clearInterval(timer);
+  }, [isPaying, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  // --- LÓGICA DE INTERACCIÓN ---
   const toggleSeat = (seatId, status) => {
-    if (status !== 'Available') return;
+    if (status !== 'Available' || isPaying) return;
     setSelectedSeats(prev => 
       prev.includes(seatId) ? prev.filter(id => id !== seatId) : [...prev, seatId]
     );
   };
 
+  // PASO 1: BLOQUEAR ASIENTO Y MOSTRAR MODAL
   const handleConfirm = async () => {
     const userId = localStorage.getItem("userId");
     if (selectedSeats.length === 0) return;
+
+    try {
+      const response = await fetch("http://localhost:5171/api/v1/seats/lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seatId: selectedSeats[0], userId: parseInt(userId) })
+      });
+
+      if (response.ok) {
+        setIsPaying(true);
+        setTimeLeft(300);
+      } else {
+        alert("El asiento ya no está disponible.");
+        loadSeats();
+      }
+    } catch (error) {
+      alert("Error de conexión al bloquear asiento");
+    }
+  };
+
+  // PASO 2: CANCELAR PAGO Y LIBERAR
+  const handleCancelPayment = async () => {
+    const userId = localStorage.getItem("userId");
+    try {
+      await fetch("http://localhost:5171/api/v1/seats/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seatId: selectedSeats[0], userId: parseInt(userId) })
+      });
+      setIsPaying(false);
+      setSelectedSeats([]);
+      loadSeats();
+    } catch (error) {
+      setIsPaying(false);
+    }
+  };
+
+  // PASO 3: FINALIZAR RESERVA DEFINITIVA
+  const finalizarReserva = async () => {
+    const userId = localStorage.getItem("userId");
     try {
       const response = await fetch("http://localhost:5171/api/v1/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: parseInt(userId), seatIds: selectedSeats })
       });
+
       if (response.ok) {
-        alert("Reserva realizada con éxito");
+        alert("¡Compra realizada con éxito!");
+        setIsPaying(false);
         setSelectedSeats([]);
         loadSeats();
       } else {
-        const text = await response.text();
-        alert("Error al reservar: " + text);
+        const errorMsg = await response.text();
+        alert("Error: " + errorMsg);
       }
     } catch (error) {
-      alert("Error de conexión");
+      alert("Error de conexión al procesar reserva");
     }
   };
 
@@ -84,26 +148,19 @@ function App() {
   };
 
   if (!isLogged) {
-    if (view === "login") {
-      return <Login onLogin={() => setIsLogged(true)} goToRegister={() => setView("register")} />;
-    }
+    if (view === "login") return <Login onLogin={() => setIsLogged(true)} goToRegister={() => setView("register")} />;
     return <Register goToLogin={() => setView("login")} />;
   }
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#1a1a1a', color: '#ffffff', minHeight: '100vh' }}>
+    <div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#1a1a1a', color: 'white', minHeight: '100vh', position: 'relative' }}>
       
-      <button onClick={() => navigate("/eventos")} style={{ position: 'absolute', top: '20px', left: '20px', padding: '8px 15px', backgroundColor: '#34495e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-        ⬅ Volver
-      </button>
-
-      <button onClick={handleLogout} style={{ position: "absolute", top: "20px", right: "20px", padding: "8px 15px", backgroundColor: "#e74c3c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: 'bold' }}>
-        Logout
-      </button>
+      <button onClick={() => navigate("/eventos")} style={navBtnStyle}>⬅ Volver</button>
+      <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
 
       <h1 style={{ color: '#ecf0f1', marginBottom: '30px' }}>Sistema de Ticketing</h1>
 
-      {/* SECTORES DINÁMICOS: Se generan botones según lo que devuelva la API */}
+      {/* SELECTOR DE SECTORES */}
       <div style={{ marginBottom: '20px', display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
         {sectors.map(sector => (
           <button 
@@ -112,75 +169,78 @@ function App() {
             style={{
               padding: '10px 20px',
               backgroundColor: sectorId === sector.id ? '#3498db' : '#2c3e50',
-              color: 'white',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              border: '1px solid #34495e',
-              fontWeight: 'bold'
+              color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold'
             }}>
             {sector.name}
           </button>
         ))}
       </div>
 
-      <h3 style={{ color: '#bdc3c7' }}>
-        {sectors.find(s => s.id === sectorId)?.name || 'Cargando mapa...'}
-      </h3>
+      <h3 style={{ color: '#bdc3c7' }}>{sectors.find(s => s.id === sectorId)?.name || 'Cargando...'}</h3>
 
-      <div style={{ marginBottom: '10px', fontSize: '1.1rem' }}>
-        Asientos seleccionados: <strong style={{ color: '#3498db' }}>{selectedSeats.length}</strong>
+      {/* MAPA DE ASIENTOS */}
+      <div style={gridContainerStyle}>
+        {seats.map(seat => (
+          <div 
+            key={seat.id}
+            onClick={() => toggleSeat(seat.id, seat.status)}
+            style={{
+              width: '45px', height: '45px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', transition: '0.2s',
+              cursor: seat.status === 'Available' ? 'pointer' : 'not-allowed',
+              backgroundColor: selectedSeats.includes(seat.id) ? '#3498db' : (seat.status === 'Available' ? '#27ae60' : '#c0392b'),
+              transform: selectedSeats.includes(seat.id) ? 'scale(1.1)' : 'scale(1)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }}>
+            {seat.seatNumber}
+          </div>
+        ))}
       </div>
 
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(10, 45px)', 
-        gap: '10px', 
-        justifyContent: 'center',
-        marginTop: '20px',
-        backgroundColor: '#2c3e50',
-        padding: '20px',
-        borderRadius: '12px',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
-      }}>
-        {seats.length > 0 ? (
-          seats.map(seat => (
-            <div 
-              key={seat.id}
-              onClick={() => toggleSeat(seat.id, seat.status)}
-              style={{
-                width: '45px', height: '45px',
-                backgroundColor: selectedSeats.includes(seat.id) ? '#3498db' : (seat.status === 'Available' ? '#27ae60' : '#c0392b'),
-                color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold',
-                cursor: seat.status === 'Available' ? 'pointer' : 'not-allowed',
-                transition: '0.2s',
-                transform: selectedSeats.includes(seat.id) ? 'scale(1.1)' : 'scale(1)',
-                border: '1px solid rgba(255,255,255,0.1)'
-              }}>
-              {seat.seatNumber}
-            </div>
-          ))
-        ) : (
-          <p style={{ gridColumn: 'span 10' }}>No hay asientos disponibles en este sector.</p>
-        )}
-      </div>
-
+      {/* BOTONES DE ACCIÓN PRINCIPALES */}
       <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
         <button 
-          disabled={selectedSeats.length === 0}
+          disabled={selectedSeats.length === 0 || isPaying}
           onClick={() => setSelectedSeats([])}
-          style={{ padding: '12px 25px', backgroundColor: selectedSeats.length > 0 ? '#e74c3c' : '#7f8c8d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+          style={{ ...actionBtnStyle, backgroundColor: selectedSeats.length > 0 ? '#e74c3c' : '#7f8c8d' }}>
           Limpiar Selección
         </button>
 
         <button 
-          disabled={selectedSeats.length === 0}
+          disabled={selectedSeats.length === 0 || isPaying}
           onClick={handleConfirm}
-          style={{ padding: '12px 30px', backgroundColor: selectedSeats.length > 0 ? '#2ecc71' : '#7f8c8d', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
+          style={{ ...actionBtnStyle, backgroundColor: selectedSeats.length > 0 ? '#2ecc71' : '#7f8c8d' }}>
           Confirmar Reserva ({selectedSeats.length})
         </button>
       </div>
+
+      {/* --- MODAL POPUP (OVERLAY) --- */}
+      {isPaying && (
+        <div style={overlayStyle}>
+          <div style={modalStyle}>
+            <h2 style={{ color: '#e74c3c', marginBottom: '10px' }}>⏱️ Reserva Temporal</h2>
+            <p style={{ fontSize: '1.4rem', margin: '20px 0' }}>Tiempo restante: <strong>{formatTime(timeLeft)}</strong></p>
+            <p style={{ color: '#bdc3c7' }}>Estás reservando {selectedSeats.length} asiento(s).</p>
+            
+            <div style={{ marginTop: '30px', display: 'flex', gap: '15px', justifyContent: 'center' }}>
+              <button onClick={finalizarReserva} style={pagoBtnStyle}>Finalizar Pago</button>
+              <button onClick={handleCancelPayment} style={cancelBtnStyle}>Cancelar y Liberar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// --- ESTILOS EN JAVASCRIPT ---
+const navBtnStyle = { position: 'absolute', top: '20px', left: '20px', padding: '8px 15px', backgroundColor: '#34495e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
+const logoutBtnStyle = { position: "absolute", top: "20px", right: "20px", padding: "8px 15px", backgroundColor: "#e74c3c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: 'bold' };
+const gridContainerStyle = { display: 'grid', gridTemplateColumns: 'repeat(10, 45px)', gap: '10px', justifyContent: 'center', marginTop: '20px', backgroundColor: '#2c3e50', padding: '20px', borderRadius: '12px' };
+const actionBtnStyle = { padding: '12px 25px', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' };
+
+const overlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.92)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 };
+const modalStyle = { backgroundColor: '#2c3e50', padding: '50px', borderRadius: '25px', textAlign: 'center', border: '2px solid #f1c40f', boxShadow: '0 0 30px rgba(0,0,0,0.5)', maxWidth: '450px' };
+const pagoBtnStyle = { padding: '12px 25px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
+const cancelBtnStyle = { padding: '12px 25px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
 
 export default App;
