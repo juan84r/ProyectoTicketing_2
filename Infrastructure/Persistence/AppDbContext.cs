@@ -45,45 +45,50 @@ public class AppDbContext : DbContext
             Role = "Admin" 
         });
 
-        // 2. Crear un Evento inicial de prueba
-        modelBuilder.Entity<Event>().HasData(new Event 
+        
+        // --- PRECARGA DE DATOS (SEEDING) ---
+
+// 1. Evento
+var eventoInicial = new Event 
+{ 
+    Id = 1, 
+    Name = "Concierto de Rock", 
+    EventDate = new DateTime(2026, 12, 10, 21, 0, 0, DateTimeKind.Utc), 
+    Venue = "Estadio Principal", 
+    Status = "Active" 
+};
+modelBuilder.Entity<Event>().HasData(eventoInicial);
+
+// 2. Sectores
+var sectores = new List<Sector>
+{
+    new Sector { Id = 1, EventId = 1, Name = "Sector A", Price = 5000, Capacity = 50 },
+    new Sector { Id = 2, EventId = 1, Name = "Sector B", Price = 8000, Capacity = 50 }
+};
+modelBuilder.Entity<Sector>().HasData(sectores);
+
+// 3. Asientos (Lógica idéntica al Handler)
+var seats = new List<Seat>();
+foreach (var sector in sectores)
+{
+    // EL CONTADOR SE RESETEA PARA CADA SECTOR
+    int contadorAsiento = 1; 
+
+    for (int i = 1; i <= 50; i++) 
+    {
+        seats.Add(new Seat 
         { 
-            Id = 1, 
-            Name = "Concierto de Rock Inicial", 
-            EventDate = new DateTime(2026, 12, 10, 21, 0, 0, DateTimeKind.Utc), 
-            Venue = "Estadio Central", 
-            Status = "Active" 
+            // El ID debe ser único, usamos el sector.Id para diferenciar
+            Id = new Guid($"00000000-0000-0000-{sector.Id:D4}-{contadorAsiento:D12}"), 
+            SectorId = sector.Id, 
+            RowIdentifier = sector.Name.Substring(sector.Name.Length - 1), 
+            SeatNumber = contadorAsiento, 
+            Status = "Available", 
+            Version = 1 
         });
-
-        // 3. Crear los Sectores para ese evento
-        modelBuilder.Entity<Sector>().HasData(
-            new Sector { Id = 1, EventId = 1, Name = "Platea Baja", Price = 5000, Capacity = 50 },
-            new Sector { Id = 2, EventId = 1, Name = "Platea Alta", Price = 8000, Capacity = 50 }
-        );
-
-        // 4. Generación automática de los primeros 100 asientos
-        var seats = new List<Seat>();
-        int[] sectorIds = { 1, 2 };
-
-        foreach (var sId in sectorIds)
-        {
-            string rowLabel = (sId == 1) ? "Baja" : "Alta";
-            int offset = (sId - 1) * 50; 
-
-            for (int i = 1; i <= 50; i++) 
-            {
-                int seatNumber = i + offset;
-
-                seats.Add(new Seat { 
-                    Id = new Guid($"00000000-0000-0000-{sId:D4}-0000{seatNumber:D8}"), 
-                    SectorId = sId, 
-                    RowIdentifier = rowLabel, 
-                    SeatNumber = seatNumber, 
-                    Status = "Available", 
-                    Version = 1 
-                });
-            }
-        }
-        modelBuilder.Entity<Seat>().HasData(seats);
+        contadorAsiento++;
+    }
+}
+modelBuilder.Entity<Seat>().HasData(seats);
     }
 }

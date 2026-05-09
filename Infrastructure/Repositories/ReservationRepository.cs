@@ -20,11 +20,14 @@ public class ReservationRepository : IReservationRepository
         await _context.SaveChangesAsync();
     }
 
-    // AGREGÁ ESTE MÉTODO:
-  public async Task<IEnumerable<Reservation>> GetByUserIdAsync(int userId)
+ public async Task<IEnumerable<Reservation>> GetByUserIdAsync(int userId)
 {
     return await _context.Reservations
+        .Include(r => r.Seat)                           // Trae el Asiento
+            .ThenInclude(s => s.Sector)                 // Trae el Sector
+                .ThenInclude(sec => sec.Event)          // Trae el Evento
         .Where(r => r.UserId == userId)
+        .OrderByDescending(r => r.ReservedAt)
         .ToListAsync();
 }
 }

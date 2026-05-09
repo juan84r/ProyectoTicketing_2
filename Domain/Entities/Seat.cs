@@ -10,6 +10,8 @@ public class Seat
     public int SeatNumber { get; set; }
     public string Status { get; set; } = "Available";
 
+    public Sector Sector {get; set;} = null!;
+
     [ConcurrencyCheck]
     public int Version { get; set; } 
 }

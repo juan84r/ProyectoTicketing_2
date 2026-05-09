@@ -36,9 +36,19 @@ public class ReservationsController : ControllerBase
 
     // Endpoint que llama tu Frontend para "Ver mis reservas"
     [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetByUser(int userId)
-    {
-        var reservations = await _reservationRepository.GetByUserIdAsync(userId);
-        return Ok(reservations);
-    }
+public async Task<IActionResult> GetByUser(int userId)
+{
+    var reservations = await _reservationRepository.GetByUserIdAsync(userId);
+    
+    // Mapeamos a un formato que React entienda fácil (todo en minúsculas para evitar líos)
+    var response = reservations.Select(r => new {
+        id = r.Id,
+        reservedAt = r.ReservedAt,
+        seatNumber = r.SeatNumber,
+        eventName = r.Seat?.Sector?.Event?.Name ?? "Evento no especificado",
+        sectorName = r.Seat?.Sector?.Name ?? "Sector no especificado"
+    });
+
+    return Ok(response);
+}
 }

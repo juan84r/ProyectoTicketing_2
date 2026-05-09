@@ -7,4 +7,5 @@ public class Reservation
     public int UserId { get; set; }
     public DateTime ReservedAt { get; set; }
     public int SeatNumber {get; set;}
+    public Seat? Seat {get; set;}
 }
