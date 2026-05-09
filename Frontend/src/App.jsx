@@ -35,7 +35,7 @@ function App() {
     }
   }, [eventId, isLogged]);
 
-  // 2. CARGAR ASIENTOS
+  // 2. CARGAR ASIENTOS (CON AUTOREFRESH)
   const loadSeats = () => {
     if (!sectorId) return;
     fetch(`http://localhost:5171/api/v1/events/${sectorId}/seats`)
@@ -46,9 +46,21 @@ function App() {
 
   useEffect(() => {
     if (isLogged && sectorId) {
+      // Carga inicial
       loadSeats();
+
+      // Configurar intervalo de refresco cada 5 segundos
+      const interval = setInterval(() => {
+        // Solo refrescamos si el usuario no tiene el modal de pago abierto
+        if (!isPaying) {
+          loadSeats();
+        }
+      }, 5000);
+
+      // Limpieza al desmontar el componente o cambiar de sector
+      return () => clearInterval(interval);
     }
-  }, [sectorId, isLogged]);
+  }, [sectorId, isLogged, isPaying]); // Dependencia de isPaying para pausar/activar el refresh
 
   // --- LÓGICA DEL CRONÓMETRO ---
   useEffect(() => {
@@ -92,7 +104,6 @@ function App() {
         setTimeLeft(300);
       } else {
         alert("El asiento ya no está disponible.");
-        // Limpiar selección local
         setSelectedSeats([]);
         loadSeats();
       }
@@ -164,7 +175,6 @@ function App() {
 
       <h1 style={{ color: '#ecf0f1', marginBottom: '30px' }}>Sistema de Ticketing</h1>
 
-      {/* SELECTOR DE SECTORES */}
       <div style={{ marginBottom: '20px', display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
         {sectors.map(sector => (
           <button 
@@ -182,7 +192,6 @@ function App() {
 
       <h3 style={{ color: '#bdc3c7' }}>{sectors.find(s => s.id === sectorId)?.name || 'Cargando...'}</h3>
 
-      {/* MAPA DE ASIENTOS */}
       <div style={gridContainerStyle}>
         {seats.map(seat => (
           <div 
@@ -200,7 +209,6 @@ function App() {
         ))}
       </div>
 
-      {/* BOTONES DE ACCIÓN PRINCIPALES */}
       <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '15px' }}>
         <button 
           disabled={selectedSeats.length === 0 || isPaying}
@@ -217,7 +225,6 @@ function App() {
         </button>
       </div>
 
-      {/* --- MODAL POPUP (OVERLAY) --- */}
       {isPaying && (
         <div style={overlayStyle}>
           <div style={modalStyle}>
@@ -236,12 +243,11 @@ function App() {
   );
 }
 
-// --- ESTILOS EN JAVASCRIPT ---
+// Estilos (se mantienen igual que los tenías)
 const navBtnStyle = { position: 'absolute', top: '20px', left: '20px', padding: '8px 15px', backgroundColor: '#34495e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
 const logoutBtnStyle = { position: "absolute", top: "20px", right: "20px", padding: "8px 15px", backgroundColor: "#e74c3c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: 'bold' };
 const gridContainerStyle = { display: 'grid', gridTemplateColumns: 'repeat(10, 45px)', gap: '10px', justifyContent: 'center', marginTop: '20px', backgroundColor: '#2c3e50', padding: '20px', borderRadius: '12px' };
 const actionBtnStyle = { padding: '12px 25px', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' };
-
 const overlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.92)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 };
 const modalStyle = { backgroundColor: '#2c3e50', padding: '50px', borderRadius: '25px', textAlign: 'center', border: '2px solid #f1c40f', boxShadow: '0 0 30px rgba(0,0,0,0.5)', maxWidth: '450px' };
 const pagoBtnStyle = { padding: '12px 25px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
