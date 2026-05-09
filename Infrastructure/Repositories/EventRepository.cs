@@ -15,16 +15,31 @@ public class EventRepository : IEventRepository
     }
 
     public async Task<IEnumerable<Event>> GetAllEventsAsync()
-    {
-        return await _context.Events.ToListAsync();
-    }
+{
+    // Agregamos los Includes para que la lista no venga "pelada"
+    return await _context.Events
+        .Include(e => e.Sectors)         // Trae los sectores de cada evento
+            .ThenInclude(s => s.Seats)   // Trae los asientos de cada sector
+        .ToListAsync();
+}
 
     public async Task<Event?> GetEventByIdAsync(int id)
     {
-        // IMPORTANTE: Cargamos los Sectores y sus Asientos (Eager Loading)
         return await _context.Events
             .Include(e => e.Sectors)
                 .ThenInclude(s => s.Seats)
             .FirstOrDefaultAsync(e => e.Id == id);
+    }
+
+    public async Task AddAsync(Event newEvent)
+    {
+        await _context.Events.AddAsync(newEvent);
+        // Quitamos el SaveChanges de acá para que el Handler tenga el control total
+    }
+
+    // --- AGREGÁ ESTE MÉTODO PARA SOLUCIONAR EL ERROR ---
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _context.SaveChangesAsync();
     }
 }

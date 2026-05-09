@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.UseCases.Auth;
 
-
 namespace API.Controllers;
 
 [ApiController]
@@ -30,7 +29,8 @@ public class AuthController : ControllerBase
         {
             message = "Login exitoso",
             userId = user.Id,
-            email = user.Email
+            email = user.Email,
+            role = user.Role
         });
     }
     [HttpPost("register")]
@@ -44,8 +44,5 @@ public class AuthController : ControllerBase
 
     return Ok("Usuario creado");
     }
-    
-
-
 
 }

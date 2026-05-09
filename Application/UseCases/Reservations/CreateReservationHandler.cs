@@ -55,7 +55,8 @@ public class CreateReservationHandler
             Id = Guid.NewGuid(),
             SeatId = seat.Id,
             UserId = request.UserId,
-            ReservedAt = DateTime.UtcNow
+            ReservedAt = DateTime.UtcNow,
+            SeatNumber = seat.SeatNumber
         };
 
         await _reservationRepository.AddAsync(reservation);

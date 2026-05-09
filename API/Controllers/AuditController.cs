@@ -3,7 +3,6 @@ using Application.Interfaces;
 
 namespace API.Controllers;
 
-
 [ApiController]
 [Route("api/v1/audit-logs")]
 public class AuditController : ControllerBase 
