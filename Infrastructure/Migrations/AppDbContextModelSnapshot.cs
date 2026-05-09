@@ -84,7 +84,7 @@ namespace Infrastructure.Migrations
                             EventDate = new DateTime(2026, 12, 10, 21, 0, 0, 0, DateTimeKind.Utc),
                             Name = "Concierto de Rock",
                             Status = "Active",
-                            Venue = "Estadio Central"
+                            Venue = "Estadio Principal"
                         });
                 });
 
@@ -103,11 +103,15 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("text");
+                    b.Property<int>("SeatNumber")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SeatId");
 
                     b.ToTable("Reservations");
                 });
@@ -138,10 +142,8 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SeatNumber")
+                    b.HasIndex("SectorId", "SeatNumber")
                         .IsUnique();
-
-                    b.HasIndex("SectorId");
 
                     b.ToTable("Seats");
 
@@ -149,7 +151,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000001"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 1,
                             SectorId = 1,
                             Status = "Available",
@@ -158,7 +160,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000002"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 2,
                             SectorId = 1,
                             Status = "Available",
@@ -167,7 +169,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000003"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 3,
                             SectorId = 1,
                             Status = "Available",
@@ -176,7 +178,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000004"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 4,
                             SectorId = 1,
                             Status = "Available",
@@ -185,7 +187,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000005"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 5,
                             SectorId = 1,
                             Status = "Available",
@@ -194,7 +196,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000006"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 6,
                             SectorId = 1,
                             Status = "Available",
@@ -203,7 +205,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000007"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 7,
                             SectorId = 1,
                             Status = "Available",
@@ -212,7 +214,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000008"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 8,
                             SectorId = 1,
                             Status = "Available",
@@ -221,7 +223,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000009"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 9,
                             SectorId = 1,
                             Status = "Available",
@@ -230,7 +232,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000010"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 10,
                             SectorId = 1,
                             Status = "Available",
@@ -239,7 +241,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000011"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 11,
                             SectorId = 1,
                             Status = "Available",
@@ -248,7 +250,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000012"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 12,
                             SectorId = 1,
                             Status = "Available",
@@ -257,7 +259,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000013"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 13,
                             SectorId = 1,
                             Status = "Available",
@@ -266,7 +268,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000014"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 14,
                             SectorId = 1,
                             Status = "Available",
@@ -275,7 +277,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000015"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 15,
                             SectorId = 1,
                             Status = "Available",
@@ -284,7 +286,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000016"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 16,
                             SectorId = 1,
                             Status = "Available",
@@ -293,7 +295,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000017"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 17,
                             SectorId = 1,
                             Status = "Available",
@@ -302,7 +304,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000018"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 18,
                             SectorId = 1,
                             Status = "Available",
@@ -311,7 +313,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000019"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 19,
                             SectorId = 1,
                             Status = "Available",
@@ -320,7 +322,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000020"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 20,
                             SectorId = 1,
                             Status = "Available",
@@ -329,7 +331,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000021"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 21,
                             SectorId = 1,
                             Status = "Available",
@@ -338,7 +340,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000022"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 22,
                             SectorId = 1,
                             Status = "Available",
@@ -347,7 +349,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000023"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 23,
                             SectorId = 1,
                             Status = "Available",
@@ -356,7 +358,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000024"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 24,
                             SectorId = 1,
                             Status = "Available",
@@ -365,7 +367,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000025"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 25,
                             SectorId = 1,
                             Status = "Available",
@@ -374,7 +376,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000026"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 26,
                             SectorId = 1,
                             Status = "Available",
@@ -383,7 +385,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000027"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 27,
                             SectorId = 1,
                             Status = "Available",
@@ -392,7 +394,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000028"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 28,
                             SectorId = 1,
                             Status = "Available",
@@ -401,7 +403,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000029"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 29,
                             SectorId = 1,
                             Status = "Available",
@@ -410,7 +412,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000030"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 30,
                             SectorId = 1,
                             Status = "Available",
@@ -419,7 +421,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000031"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 31,
                             SectorId = 1,
                             Status = "Available",
@@ -428,7 +430,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000032"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 32,
                             SectorId = 1,
                             Status = "Available",
@@ -437,7 +439,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000033"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 33,
                             SectorId = 1,
                             Status = "Available",
@@ -446,7 +448,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000034"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 34,
                             SectorId = 1,
                             Status = "Available",
@@ -455,7 +457,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000035"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 35,
                             SectorId = 1,
                             Status = "Available",
@@ -464,7 +466,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000036"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 36,
                             SectorId = 1,
                             Status = "Available",
@@ -473,7 +475,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000037"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 37,
                             SectorId = 1,
                             Status = "Available",
@@ -482,7 +484,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000038"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 38,
                             SectorId = 1,
                             Status = "Available",
@@ -491,7 +493,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000039"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 39,
                             SectorId = 1,
                             Status = "Available",
@@ -500,7 +502,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000040"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 40,
                             SectorId = 1,
                             Status = "Available",
@@ -509,7 +511,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000041"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 41,
                             SectorId = 1,
                             Status = "Available",
@@ -518,7 +520,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000042"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 42,
                             SectorId = 1,
                             Status = "Available",
@@ -527,7 +529,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000043"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 43,
                             SectorId = 1,
                             Status = "Available",
@@ -536,7 +538,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000044"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 44,
                             SectorId = 1,
                             Status = "Available",
@@ -545,7 +547,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000045"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 45,
                             SectorId = 1,
                             Status = "Available",
@@ -554,7 +556,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000046"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 46,
                             SectorId = 1,
                             Status = "Available",
@@ -563,7 +565,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000047"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 47,
                             SectorId = 1,
                             Status = "Available",
@@ -572,7 +574,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000048"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 48,
                             SectorId = 1,
                             Status = "Available",
@@ -581,7 +583,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000049"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 49,
                             SectorId = 1,
                             Status = "Available",
@@ -590,7 +592,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("00000000-0000-0000-0001-000000000050"),
-                            RowIdentifier = "Baja",
+                            RowIdentifier = "A",
                             SeatNumber = 50,
                             SectorId = 1,
                             Status = "Available",
@@ -598,450 +600,450 @@ namespace Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000051"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 51,
+                            Id = new Guid("00000000-0000-0000-0002-000000000001"),
+                            RowIdentifier = "B",
+                            SeatNumber = 1,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000052"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 52,
+                            Id = new Guid("00000000-0000-0000-0002-000000000002"),
+                            RowIdentifier = "B",
+                            SeatNumber = 2,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000053"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 53,
+                            Id = new Guid("00000000-0000-0000-0002-000000000003"),
+                            RowIdentifier = "B",
+                            SeatNumber = 3,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000054"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 54,
+                            Id = new Guid("00000000-0000-0000-0002-000000000004"),
+                            RowIdentifier = "B",
+                            SeatNumber = 4,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000055"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 55,
+                            Id = new Guid("00000000-0000-0000-0002-000000000005"),
+                            RowIdentifier = "B",
+                            SeatNumber = 5,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000056"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 56,
+                            Id = new Guid("00000000-0000-0000-0002-000000000006"),
+                            RowIdentifier = "B",
+                            SeatNumber = 6,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000057"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 57,
+                            Id = new Guid("00000000-0000-0000-0002-000000000007"),
+                            RowIdentifier = "B",
+                            SeatNumber = 7,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000058"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 58,
+                            Id = new Guid("00000000-0000-0000-0002-000000000008"),
+                            RowIdentifier = "B",
+                            SeatNumber = 8,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000059"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 59,
+                            Id = new Guid("00000000-0000-0000-0002-000000000009"),
+                            RowIdentifier = "B",
+                            SeatNumber = 9,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000060"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 60,
+                            Id = new Guid("00000000-0000-0000-0002-000000000010"),
+                            RowIdentifier = "B",
+                            SeatNumber = 10,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000061"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 61,
+                            Id = new Guid("00000000-0000-0000-0002-000000000011"),
+                            RowIdentifier = "B",
+                            SeatNumber = 11,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000062"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 62,
+                            Id = new Guid("00000000-0000-0000-0002-000000000012"),
+                            RowIdentifier = "B",
+                            SeatNumber = 12,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000063"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 63,
+                            Id = new Guid("00000000-0000-0000-0002-000000000013"),
+                            RowIdentifier = "B",
+                            SeatNumber = 13,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000064"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 64,
+                            Id = new Guid("00000000-0000-0000-0002-000000000014"),
+                            RowIdentifier = "B",
+                            SeatNumber = 14,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000065"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 65,
+                            Id = new Guid("00000000-0000-0000-0002-000000000015"),
+                            RowIdentifier = "B",
+                            SeatNumber = 15,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000066"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 66,
+                            Id = new Guid("00000000-0000-0000-0002-000000000016"),
+                            RowIdentifier = "B",
+                            SeatNumber = 16,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000067"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 67,
+                            Id = new Guid("00000000-0000-0000-0002-000000000017"),
+                            RowIdentifier = "B",
+                            SeatNumber = 17,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000068"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 68,
+                            Id = new Guid("00000000-0000-0000-0002-000000000018"),
+                            RowIdentifier = "B",
+                            SeatNumber = 18,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000069"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 69,
+                            Id = new Guid("00000000-0000-0000-0002-000000000019"),
+                            RowIdentifier = "B",
+                            SeatNumber = 19,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000070"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 70,
+                            Id = new Guid("00000000-0000-0000-0002-000000000020"),
+                            RowIdentifier = "B",
+                            SeatNumber = 20,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000071"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 71,
+                            Id = new Guid("00000000-0000-0000-0002-000000000021"),
+                            RowIdentifier = "B",
+                            SeatNumber = 21,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000072"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 72,
+                            Id = new Guid("00000000-0000-0000-0002-000000000022"),
+                            RowIdentifier = "B",
+                            SeatNumber = 22,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000073"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 73,
+                            Id = new Guid("00000000-0000-0000-0002-000000000023"),
+                            RowIdentifier = "B",
+                            SeatNumber = 23,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000074"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 74,
+                            Id = new Guid("00000000-0000-0000-0002-000000000024"),
+                            RowIdentifier = "B",
+                            SeatNumber = 24,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000075"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 75,
+                            Id = new Guid("00000000-0000-0000-0002-000000000025"),
+                            RowIdentifier = "B",
+                            SeatNumber = 25,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000076"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 76,
+                            Id = new Guid("00000000-0000-0000-0002-000000000026"),
+                            RowIdentifier = "B",
+                            SeatNumber = 26,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000077"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 77,
+                            Id = new Guid("00000000-0000-0000-0002-000000000027"),
+                            RowIdentifier = "B",
+                            SeatNumber = 27,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000078"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 78,
+                            Id = new Guid("00000000-0000-0000-0002-000000000028"),
+                            RowIdentifier = "B",
+                            SeatNumber = 28,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000079"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 79,
+                            Id = new Guid("00000000-0000-0000-0002-000000000029"),
+                            RowIdentifier = "B",
+                            SeatNumber = 29,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000080"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 80,
+                            Id = new Guid("00000000-0000-0000-0002-000000000030"),
+                            RowIdentifier = "B",
+                            SeatNumber = 30,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000081"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 81,
+                            Id = new Guid("00000000-0000-0000-0002-000000000031"),
+                            RowIdentifier = "B",
+                            SeatNumber = 31,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000082"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 82,
+                            Id = new Guid("00000000-0000-0000-0002-000000000032"),
+                            RowIdentifier = "B",
+                            SeatNumber = 32,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000083"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 83,
+                            Id = new Guid("00000000-0000-0000-0002-000000000033"),
+                            RowIdentifier = "B",
+                            SeatNumber = 33,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000084"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 84,
+                            Id = new Guid("00000000-0000-0000-0002-000000000034"),
+                            RowIdentifier = "B",
+                            SeatNumber = 34,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000085"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 85,
+                            Id = new Guid("00000000-0000-0000-0002-000000000035"),
+                            RowIdentifier = "B",
+                            SeatNumber = 35,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000086"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 86,
+                            Id = new Guid("00000000-0000-0000-0002-000000000036"),
+                            RowIdentifier = "B",
+                            SeatNumber = 36,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000087"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 87,
+                            Id = new Guid("00000000-0000-0000-0002-000000000037"),
+                            RowIdentifier = "B",
+                            SeatNumber = 37,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000088"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 88,
+                            Id = new Guid("00000000-0000-0000-0002-000000000038"),
+                            RowIdentifier = "B",
+                            SeatNumber = 38,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000089"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 89,
+                            Id = new Guid("00000000-0000-0000-0002-000000000039"),
+                            RowIdentifier = "B",
+                            SeatNumber = 39,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000090"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 90,
+                            Id = new Guid("00000000-0000-0000-0002-000000000040"),
+                            RowIdentifier = "B",
+                            SeatNumber = 40,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000091"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 91,
+                            Id = new Guid("00000000-0000-0000-0002-000000000041"),
+                            RowIdentifier = "B",
+                            SeatNumber = 41,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000092"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 92,
+                            Id = new Guid("00000000-0000-0000-0002-000000000042"),
+                            RowIdentifier = "B",
+                            SeatNumber = 42,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000093"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 93,
+                            Id = new Guid("00000000-0000-0000-0002-000000000043"),
+                            RowIdentifier = "B",
+                            SeatNumber = 43,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000094"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 94,
+                            Id = new Guid("00000000-0000-0000-0002-000000000044"),
+                            RowIdentifier = "B",
+                            SeatNumber = 44,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000095"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 95,
+                            Id = new Guid("00000000-0000-0000-0002-000000000045"),
+                            RowIdentifier = "B",
+                            SeatNumber = 45,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000096"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 96,
+                            Id = new Guid("00000000-0000-0000-0002-000000000046"),
+                            RowIdentifier = "B",
+                            SeatNumber = 46,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000097"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 97,
+                            Id = new Guid("00000000-0000-0000-0002-000000000047"),
+                            RowIdentifier = "B",
+                            SeatNumber = 47,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000098"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 98,
+                            Id = new Guid("00000000-0000-0000-0002-000000000048"),
+                            RowIdentifier = "B",
+                            SeatNumber = 48,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000099"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 99,
+                            Id = new Guid("00000000-0000-0000-0002-000000000049"),
+                            RowIdentifier = "B",
+                            SeatNumber = 49,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
                         },
                         new
                         {
-                            Id = new Guid("00000000-0000-0000-0002-000000000100"),
-                            RowIdentifier = "Alta",
-                            SeatNumber = 100,
+                            Id = new Guid("00000000-0000-0000-0002-000000000050"),
+                            RowIdentifier = "B",
+                            SeatNumber = 50,
                             SectorId = 2,
                             Status = "Available",
                             Version = 1
@@ -1082,7 +1084,7 @@ namespace Infrastructure.Migrations
                             Id = 1,
                             Capacity = 50,
                             EventId = 1,
-                            Name = "Platea Baja",
+                            Name = "Sector A",
                             Price = 5000m
                         },
                         new
@@ -1090,7 +1092,7 @@ namespace Infrastructure.Migrations
                             Id = 2,
                             Capacity = 50,
                             EventId = 1,
-                            Name = "Platea Alta",
+                            Name = "Sector B",
                             Price = 8000m
                         });
                 });
@@ -1111,6 +1113,10 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users");
@@ -1120,26 +1126,42 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Email = "admin@test.com",
-                            Password = "1234"
+                            Password = "$2a$11$faVCjgww4M15XqVz2hRIu.p3ZdAi7nhYnz3oq4ZmU5.gdvWHMU5lO",
+                            Role = "Admin"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Reservation", b =>
+                {
+                    b.HasOne("Domain.Entities.Seat", "Seat")
+                        .WithMany()
+                        .HasForeignKey("SeatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Seat");
                 });
 
             modelBuilder.Entity("Domain.Entities.Seat", b =>
                 {
-                    b.HasOne("Domain.Entities.Sector", null)
+                    b.HasOne("Domain.Entities.Sector", "Sector")
                         .WithMany("Seats")
                         .HasForeignKey("SectorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Sector");
                 });
 
             modelBuilder.Entity("Domain.Entities.Sector", b =>
                 {
-                    b.HasOne("Domain.Entities.Event", null)
+                    b.HasOne("Domain.Entities.Event", "Event")
                         .WithMany("Sectors")
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Event");
                 });
 
             modelBuilder.Entity("Domain.Entities.Event", b =>
