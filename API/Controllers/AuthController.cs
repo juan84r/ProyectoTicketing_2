@@ -30,7 +30,8 @@ public class AuthController : ControllerBase
         {
             message = "Login exitoso",
             userId = user.Id,
-            email = user.Email
+            email = user.Email,
+            role = user.Role
         });
     }
     [HttpPost("register")]

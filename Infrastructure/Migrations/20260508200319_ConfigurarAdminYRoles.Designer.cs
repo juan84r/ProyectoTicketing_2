@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508200319_ConfigurarAdminYRoles")]
+    partial class ConfigurarAdminYRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1121,7 +1124,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Email = "admin@test.com",
-                            Password = "$2a$11$kZNsXaD8/vJt0etw1BL5HOunQupCuIsvD4tC/fHQ23d3XyPjKlPX2",
+                            Password = "1234",
                             Role = "Admin"
                         });
                 });

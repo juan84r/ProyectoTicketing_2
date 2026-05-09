@@ -1,10 +1,11 @@
 import { useState } from "react";
-// Asegurate de que la ruta al fondo sea la misma que en el Login
+import { useNavigate } from "react-router-dom"; // 1. AGREGAR ESTO
 import fondo from "./assets/fondo.jpg";
 
-function Register({ goToLogin }) {
+function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate(); // 2. AGREGAR ESTO
 
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -27,7 +28,7 @@ function Register({ goToLogin }) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, role: "User" }) // Agregué el rol por las dudas
       });
 
       if (!res.ok) {
@@ -36,7 +37,7 @@ function Register({ goToLogin }) {
       }
 
       alert("Usuario creado correctamente");
-      goToLogin();
+      navigate("/"); // 3. CAMBIAR ESTO: Te manda al Login
     } catch (error) {
       console.error(error);
       alert("Error de conexión");
@@ -60,7 +61,6 @@ function Register({ goToLogin }) {
         left: 0
       }}
     >
-      {/* OSCURECE EL FONDO (IGUAL QUE EL LOGIN) */}
       <div style={{
         position: "absolute",
         inset: 0,
@@ -109,7 +109,7 @@ function Register({ goToLogin }) {
           style={{
             padding: "10px 20px",
             width: "100%",
-            backgroundColor: "#2ed573", // Un verde para diferenciarlo del Login
+            backgroundColor: "#2ed573", 
             color: "white",
             border: "none",
             borderRadius: "5px",
@@ -124,7 +124,7 @@ function Register({ goToLogin }) {
         <div className="register-link" style={{ marginTop: "20px", color: "white" }}>
           ¿Ya tenés cuenta?{" "}
           <span 
-            onClick={goToLogin} 
+            onClick={() => navigate("/")} // 4. CAMBIAR ESTO
             style={{ color: "#00a8ff", cursor: "pointer", fontWeight: "bold", textDecoration: "underline" }}
           >
             Iniciá sesión

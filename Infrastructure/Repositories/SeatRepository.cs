@@ -22,6 +22,14 @@ public class SeatRepository : ISeatRepository
     public async Task UpdateAsync(Seat seat)
     {
         _context.Seats.Update(seat);
+        // Nota: El SaveChanges se suele llamar al final de la transacción en el Handler
         await _context.SaveChangesAsync();
+    }
+
+    // --- AGREGÁ ESTE MÉTODO PARA QUE COMPILE LA INTERFAZ ---
+    public async Task AddAsync(Seat seat)
+    {
+        // Preparamos el asiento para ser insertado en la tabla Seats
+        await _context.Seats.AddAsync(seat);
     }
 }
