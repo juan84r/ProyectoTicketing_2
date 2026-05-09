@@ -16,48 +16,54 @@ public class GenerateEventHandler
     }
 
     public async Task<bool> Handle(GenerateEventCommand command)
+{
+    try
     {
-        try
+        // 1. Crear Evento - MODIFICADO AQUÍ
+        var newEvent = new Event 
+        { 
+            Name = command.Name,
+            Venue = command.Venue // <--- Ahora toma el lugar que viene del Admin
+        };
+        
+        await _eventRepository.AddAsync(newEvent);
+        await _eventRepository.SaveChangesAsync();
+
+        // 2. Generar Sectores
+        for (int i = 0; i < command.NumSectors; i++)
         {
-            // 1. Crear Evento
-            var newEvent = new Event { Name = command.Name };
-            await _eventRepository.AddAsync(newEvent);
-            await _eventRepository.SaveChangesAsync();
+            var sector = new Sector {
+                Name = $"Sector {((char)('A' + i))}",
+                EventId = newEvent.Id,
+                Price = command.Price // Aprovechamos para asignar el precio si no estaba
+            };
+            
+            if (newEvent.Sectors == null) newEvent.Sectors = new List<Sector>();
+            newEvent.Sectors.Add(sector);
+            await _eventRepository.SaveChangesAsync(); 
 
-            // 2. Generar Sectores
-            for (int i = 0; i < command.NumSectors; i++)
+            // 3. Generar Asientos
+            int contador = 1;
+            for (int r = 1; r <= command.RowsPerSector; r++)
             {
-                var sector = new Sector {
-                    Name = $"Sector {((char)('A' + i))}",
-                    EventId = newEvent.Id
-                };
-                
-                if (newEvent.Sectors == null) newEvent.Sectors = new List<Sector>();
-                newEvent.Sectors.Add(sector);
-                await _eventRepository.SaveChangesAsync(); // Guardar para obtener ID del sector
-
-                // 3. Generar Asientos
-                int contador = 1;
-                for (int r = 1; r <= command.RowsPerSector; r++)
+                for (int s = 1; s <= command.SeatsPerRow; s++)
                 {
-                    for (int s = 1; s <= command.SeatsPerRow; s++)
-                    {
-                        var seat = new Seat {
-                            SectorId = sector.Id,
-                            SeatNumber = contador,
-                            Status = "Available"
-                        };
-                        await _seatRepository.AddAsync(seat);
-                        contador++;
-                    }
+                    var seat = new Seat {
+                        SectorId = sector.Id,
+                        SeatNumber = contador,
+                        Status = "Available"
+                    };
+                    await _seatRepository.AddAsync(seat);
+                    contador++;
                 }
             }
-            await _eventRepository.SaveChangesAsync();
-            return true;
         }
-        catch (Exception ex) {
-            Console.WriteLine($"Error: {ex.Message}");
-            return false;
-        }
+        await _eventRepository.SaveChangesAsync();
+        return true;
     }
+    catch (Exception ex) {
+        Console.WriteLine($"Error: {ex.Message}");
+        return false;
+    }
+}
 }
