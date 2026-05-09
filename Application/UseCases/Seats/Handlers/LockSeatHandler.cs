@@ -8,34 +8,101 @@ public class LockSeatHandler
 {
     private readonly ISeatRepository _seatRepository;
 
-    public LockSeatHandler(ISeatRepository seatRepository)
+    private readonly IAuditRepository _auditRepository;
+
+    private readonly IUserRepository _userRepository;
+
+    public LockSeatHandler(
+        ISeatRepository seatRepository,
+        IAuditRepository auditRepository,
+        IUserRepository userRepository)
     {
         _seatRepository = seatRepository;
+
+        _auditRepository = auditRepository;
+
+        _userRepository = userRepository;
     }
 
     public async Task<bool> Handle(LockSeatCommand command)
     {
         var seat = await _seatRepository.GetByIdAsync(command.SeatId);
 
-        if (seat == null) return false;
+        if (seat == null)
+            return false;
 
-        // Lógica: Está libre O el bloqueo ya venció
-        bool isAvailable = seat.Status == "Available";
-        bool isExpired = seat.Status == "Reserved" && seat.LockUntil < DateTime.UtcNow;
+        // Buscar usuario para auditoría
+        var user = await _userRepository.GetByIdAsync(command.UserId);
 
+        // Lógica:
+        // Disponible
+        // O bloqueo vencido
+        bool isAvailable =
+            seat.Status == "Available";
+
+        bool isExpired =
+            seat.Status == "Reserved" &&
+            seat.LockUntil < DateTime.UtcNow;
+
+        // =========================
+        // BLOQUEO EXITOSO
+        // =========================
         if (isAvailable || isExpired)
         {
             seat.Status = "Reserved";
-            seat.LockedByUserId = command.UserId;
-            seat.LockUntil = DateTime.UtcNow.AddMinutes(5); // Bloqueo por 5 min
-            
-            seat.Version++; // Para evitar que dos personas ganen al mismo tiempo
+
+            seat.LockedByUserId =
+                command.UserId;
+
+            seat.LockUntil =
+                DateTime.UtcNow.AddMinutes(5);
+
+            // Control concurrencia
+            seat.Version++;
 
             await _seatRepository.UpdateAsync(seat);
+
             await _seatRepository.SaveChangesAsync();
+
+            // AUDITORÍA
+            await _auditRepository.AddAsync(
+                new AuditLog
+                {
+                    Action =
+                        "Seat Temporarily Reserved",
+
+                    User =
+                        user?.Email ?? "Unknown",
+
+                    Resource =
+                        $"Asiento {seat.SeatNumber}",
+
+                    Timestamp =
+                        DateTime.UtcNow
+                });
+
             return true;
         }
 
-        return false; // El asiento está ocupado por otro y no venció
+        // =========================
+        // FALLÓ POR CONCURRENCIA
+        // =========================
+        await _auditRepository.AddAsync(
+            new AuditLog
+            {
+                Action =
+                    "Reservation Failed - Concurrency",
+
+                User =
+                    user?.Email ?? "Unknown",
+
+                Resource =
+                    $"Asiento {seat.SeatNumber}",
+
+                Timestamp =
+                    DateTime.UtcNow
+            });
+
+        return false;
     }
 }

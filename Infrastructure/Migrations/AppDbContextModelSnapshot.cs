@@ -1129,7 +1129,7 @@ namespace Infrastructure.Migrations
                         {
                             Id = 1,
                             Email = "admin@test.com",
-                            Password = "$2a$11$QPLqKvyy.sbo8oNVWJv/seAPJaqVqlD6FF9K5OqSaCMbxZnUzLj5O",
+                            Password = "$2a$11$whs5JNbyQG33YGHFcwMqyOKfEz25blxlJ/lVrY9aRPbMJQFLjbFCK",
                             Role = "Admin"
                         });
                 });

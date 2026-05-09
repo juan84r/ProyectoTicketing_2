@@ -10,49 +10,134 @@ namespace API.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly CreateReservationHandler _handler;
+
     private readonly IReservationRepository _reservationRepository;
 
-    // Inyectamos el handler para crear y el repositorio para leer
-    public ReservationsController(CreateReservationHandler handler, IReservationRepository reservationRepository)
+    private readonly IUserRepository _userRepository;
+
+    // =========================
+    // CONSTRUCTOR
+    // =========================
+    public ReservationsController(
+        CreateReservationHandler handler,
+        IReservationRepository reservationRepository,
+        IUserRepository userRepository)
     {
         _handler = handler;
-        _reservationRepository = reservationRepository;
+
+        _reservationRepository =
+            reservationRepository;
+
+        _userRepository =
+            userRepository;
     }
 
+    // =========================
+    // CREAR RESERVA
+    // =========================
     [HttpPost]
-    public async Task<IActionResult> Create(CreateReservationRequest request)
+    public async Task<IActionResult> Create(
+        CreateReservationRequest request)
     {
-        var result = await _handler.Handle(request);
+        var result =
+            await _handler.Handle(request);
 
         return result switch
         {
-            ReservationResult.SeatNotFound => NotFound("El asiento no existe"),
-            ReservationResult.SeatAlreadyReserved => Conflict("El asiento ya está reservado"),
-            ReservationResult.UserNotFound => NotFound("El usuario no existe"),
-            ReservationResult.Success => Created("", "Reserva realizada correctamente"),
-            _ => StatusCode(500, "Error inesperado")
+            ReservationResult.SeatNotFound =>
+                NotFound(new
+                {
+                    message =
+                        "El asiento no existe"
+                }),
+
+            ReservationResult.SeatAlreadyReserved =>
+                Conflict(new
+                {
+                    message =
+                        "El asiento ya está reservado"
+                }),
+
+            ReservationResult.UserNotFound =>
+                NotFound(new
+                {
+                    message =
+                        "El usuario no existe"
+                }),
+
+            ReservationResult.Success =>
+                Created("",
+                    new
+                    {
+                        message =
+                            "Reserva realizada correctamente"
+                    }),
+
+            _ =>
+                StatusCode(500,
+                    new
+                    {
+                        message =
+                            "Error inesperado"
+                    })
         };
     }
 
-    // Endpoint que llama tu Frontend para "Ver mis reservas"
+    // =========================
+    // VER RESERVAS DE USUARIO
+    // =========================
+    [HttpGet("user/{userId}")]
+    public async Task<IActionResult> GetByUser(
+        int userId)
+    {
+        // =========================
+        // VALIDAR USUARIO
+        // =========================
+        var user =
+            await _userRepository
+                .GetByIdAsync(userId);
 
-[HttpGet("user/{userId}")]
-public async Task<IActionResult> GetByUser(int userId)
-{
-    // 1. Obtenemos las reservas usando el repositorio
-    var reservations = await _reservationRepository.GetByUserIdAsync(userId);
+        // Usuario inexistente
+        if (user == null)
+        {
+            return NotFound(new
+            {
+                message =
+                    "Usuario no encontrado"
+            });
+        }
 
-    // 2. IMPORTANTE: Mapeamos a un objeto simple (DTO anónimo) 
-    // para evitar el error de referencia circular (Stack Overflow)
-    var result = reservations.Select(r => new {
-        id = r.Id,
-        seatNumber = r.SeatNumber,
-        reservedAt = r.ReservedAt,
-        // Usamos "?" para evitar errores si algo falta
-        eventName = r.Seat?.Sector?.Event?.Name ?? "Evento no encontrado",
-        sectorName = r.Seat?.Sector?.Name ?? "Sector no encontrado"
-    }).ToList();
+        // =========================
+        // OBTENER RESERVAS
+        // =========================
+        var reservations =
+            await _reservationRepository
+                .GetByUserIdAsync(userId);
 
-    return Ok(result);
-}
+        // =========================
+        // MAPEAR DTO SIMPLE
+        // =========================
+        var result = reservations
+            .Select(r => new
+            {
+                id = r.Id,
+
+                seatNumber =
+                    r.SeatNumber,
+
+                reservedAt =
+                    r.ReservedAt,
+
+                eventName =
+                    r.Seat?.Sector?.Event?.Name
+                    ?? "Evento no encontrado",
+
+                sectorName =
+                    r.Seat?.Sector?.Name
+                    ?? "Sector no encontrado"
+            })
+            .ToList();
+
+        return Ok(result);
+    }
 }

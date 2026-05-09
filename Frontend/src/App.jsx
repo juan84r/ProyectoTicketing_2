@@ -92,6 +92,8 @@ function App() {
         setTimeLeft(300);
       } else {
         alert("El asiento ya no está disponible.");
+        // Limpiar selección local
+        setSelectedSeats([]);
         loadSeats();
       }
     } catch (error) {
@@ -134,6 +136,8 @@ function App() {
       } else {
         const errorMsg = await response.text();
         alert("Error: " + errorMsg);
+        setSelectedSeats([]);
+        loadSeats();
       }
     } catch (error) {
       alert("Error de conexión al procesar reserva");
