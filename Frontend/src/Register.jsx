@@ -1,51 +1,79 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // 1. AGREGAR ESTO
+import { useNavigate } from "react-router-dom";
 import fondo from "./assets/fondo.jpg";
 
-function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
+function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // 2. AGREGAR ESTO
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   const isValidEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleRegister = async () => {
+    setError("");
+    setSuccess("");
+
     if (!isValidEmail(email)) {
-      alert("Ingresá un correo válido (ej: usuario@gmail.com)");
+      setError("Ingresá un correo válido (ej: usuario@gmail.com)");
       return;
     }
 
     if (password.length < 4) {
-      alert("La contraseña debe tener al menos 4 caracteres");
+      setError("La contraseña debe tener al menos 4 caracteres");
       return;
     }
 
     try {
-      const res = await fetch("http://localhost:5171/api/v1/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password, role: "User" }) // Agregué el rol por las dudas
-      });
+      setLoading(true);
+
+      const res = await fetch(
+        "http://localhost:5171/api/v1/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            role: "User"
+          })
+        }
+      );
 
       if (!res.ok) {
-        alert("Error al registrarse. Posiblemente el usuario ya existe.");
+        setError(
+          "Error al registrarse. Posiblemente el usuario ya existe."
+        );
         return;
       }
 
-      alert("Usuario creado correctamente");
-      navigate("/"); // 3. CAMBIAR ESTO: Te manda al Login
-    } catch (error) {
+      setSuccess("Usuario creado correctamente");
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
+    }
+    catch (error)
+    {
       console.error(error);
-      alert("Error de conexión");
+      setError("Error de conexión");
+    }
+    finally
+    {
+      setLoading(false);
     }
   };
 
   return (
-    <div 
+    <div
       className="login-container"
       style={{
         backgroundImage: `url(${fondo})`,
@@ -61,20 +89,63 @@ function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
         left: 0
       }}
     >
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        background: "rgba(0,0,0,0.6)"
-      }} />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0,0,0,0.6)"
+        }}
+      />
 
-      <div className="login-card" style={{ position: "relative", zIndex: 1 }}>
-        <h1 style={{ color: "white", marginBottom: "20px" }}>Crear cuenta</h1>
+      <div
+        className="login-card"
+        style={{
+          position: "relative",
+          zIndex: 1
+        }}
+      >
+        <h1
+          style={{
+            color: "white",
+            marginBottom: "20px"
+          }}
+        >
+          Crear cuenta
+        </h1>
+
+        {error && (
+          <div
+            style={{
+              backgroundColor: "#e74c3c",
+              color: "white",
+              padding: "10px",
+              borderRadius: "6px",
+              marginBottom: "15px"
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div
+            style={{
+              backgroundColor: "#27ae60",
+              color: "white",
+              padding: "10px",
+              borderRadius: "6px",
+              marginBottom: "15px"
+            }}
+          >
+            {success}
+          </div>
+        )}
 
         <div className="input-group">
           <input
             placeholder="Correo electrónico"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             style={{
               padding: "10px",
               margin: "10px 0",
@@ -91,7 +162,7 @@ function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
             type="password"
             placeholder="Contraseña"
             value={password}
-            onChange={e => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             style={{
               padding: "10px",
               margin: "10px 0",
@@ -103,13 +174,14 @@ function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
           />
         </div>
 
-        <button 
-          className="login-btn" 
+        <button
+          className="login-btn"
           onClick={handleRegister}
+          disabled={loading}
           style={{
             padding: "10px 20px",
             width: "100%",
-            backgroundColor: "#2ed573", 
+            backgroundColor: "#2ed573",
             color: "white",
             border: "none",
             borderRadius: "5px",
@@ -118,14 +190,25 @@ function Register() { // Quitamos el prop goToLogin porque ahora usamos rutas
             marginTop: "10px"
           }}
         >
-          Registrarse
+          {loading ? "Registrando..." : "Registrarse"}
         </button>
 
-        <div className="register-link" style={{ marginTop: "20px", color: "white" }}>
+        <div
+          className="register-link"
+          style={{
+            marginTop: "20px",
+            color: "white"
+          }}
+        >
           ¿Ya tenés cuenta?{" "}
-          <span 
-            onClick={() => navigate("/")} // 4. CAMBIAR ESTO
-            style={{ color: "#00a8ff", cursor: "pointer", fontWeight: "bold", textDecoration: "underline" }}
+          <span
+            onClick={() => navigate("/")}
+            style={{
+              color: "#00a8ff",
+              cursor: "pointer",
+              fontWeight: "bold",
+              textDecoration: "underline"
+            }}
           >
             Iniciá sesión
           </span>

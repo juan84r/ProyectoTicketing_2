@@ -19,6 +19,9 @@ function App() {
   // --- ESTADOS DEL BLOQUEO Y RELOJ ---
   const [isPaying, setIsPaying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutos en segundos
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // 1. CARGAR SECTORES DINÁMICAMENTE
   useEffect(() => {
@@ -89,29 +92,68 @@ function App() {
 
   // PASO 1: BLOQUEAR ASIENTO Y MOSTRAR MODAL
   const handleConfirm = async () => {
-    const userId = localStorage.getItem("userId");
-    if (selectedSeats.length === 0) return;
 
-    try {
-      const response = await fetch("http://localhost:5171/api/v1/seats/lock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ seatId: selectedSeats[0], userId: parseInt(userId) })
-      });
+  setError("");
+  setSuccess("");
 
-      if (response.ok) {
-        setIsPaying(true);
-        setTimeLeft(300);
-      } else {
-        alert("El asiento ya no está disponible.");
-        setSelectedSeats([]);
-        loadSeats();
-      }
-    } catch (error) {
-      alert("Error de conexión al bloquear asiento");
+  const userId = localStorage.getItem("userId");
+
+  if (selectedSeats.length === 0)
+    return;
+
+  try {
+
+    setLoading(true);
+
+    const response =
+      await fetch(
+        "http://localhost:5171/api/v1/seats/lock",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            seatId: selectedSeats[0],
+            userId: parseInt(userId)
+          })
+        }
+      );
+
+    if (response.ok)
+    {
+      setIsPaying(true);
+      setTimeLeft(300);
+      return;
     }
-  };
 
+    if (response.status === 409)
+    {
+      setError(
+        "El asiento fue reservado por otro usuario."
+      );
+    }
+    else
+    {
+      setError(
+        "El asiento ya no está disponible."
+      );
+    }
+
+    setSelectedSeats([]);
+    loadSeats();
+  }
+  catch (error)
+  {
+    setError(
+      "Error de conexión al bloquear asiento."
+    );
+  }
+  finally
+  {
+    setLoading(false);
+  }
+};
   // PASO 2: CANCELAR PAGO Y LIBERAR
   const handleCancelPayment = async () => {
     const userId = localStorage.getItem("userId");
@@ -131,29 +173,79 @@ function App() {
 
   // PASO 3: FINALIZAR RESERVA DEFINITIVA
   const finalizarReserva = async () => {
-    const userId = localStorage.getItem("userId");
-    try {
-      const response = await fetch("http://localhost:5171/api/v1/reservations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: parseInt(userId), seatIds: selectedSeats })
-      });
 
-      if (response.ok) {
-        alert("¡Compra realizada con éxito!");
-        setIsPaying(false);
-        setSelectedSeats([]);
-        loadSeats();
-      } else {
-        const errorMsg = await response.text();
-        alert("Error: " + errorMsg);
-        setSelectedSeats([]);
-        loadSeats();
-      }
-    } catch (error) {
-      alert("Error de conexión al procesar reserva");
+  setError("");
+  setSuccess("");
+
+  const userId =
+    localStorage.getItem("userId");
+
+  try {
+
+    setLoading(true);
+
+    const response =
+      await fetch(
+        "http://localhost:5171/api/v1/reservations",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: parseInt(userId),
+            seatIds: selectedSeats
+          })
+        }
+      );
+
+    if (response.ok)
+    {
+      setSuccess(
+        "¡Compra realizada con éxito!"
+      );
+
+      setIsPaying(false);
+      setSelectedSeats([]);
+
+      loadSeats();
+
+      return;
     }
-  };
+
+    if (response.status === 409)
+    {
+      setError(
+        "Otro usuario compró el asiento antes."
+      );
+    }
+    else if (response.status === 404)
+    {
+      setError(
+        "El asiento ya no existe."
+      );
+    }
+    else
+    {
+      setError(
+        "Error al procesar la compra."
+      );
+    }
+
+    setSelectedSeats([]);
+    loadSeats();
+  }
+  catch (error)
+  {
+    setError(
+      "Error de conexión al procesar la compra."
+    );
+  }
+  finally
+  {
+    setLoading(false);
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("userId");
@@ -174,6 +266,37 @@ function App() {
       <button onClick={handleLogout} style={logoutBtnStyle}>Logout</button>
 
       <h1 style={{ color: '#ecf0f1', marginBottom: '30px' }}>Sistema de Ticketing</h1>
+      {error && (
+        <div
+        style={{
+            backgroundColor: "#e74c3c",
+            color: "white",
+            padding: "10px",
+            borderRadius: "6px",
+            marginBottom: "20px",
+            maxWidth: "600px",
+            margin: "0 auto 20px auto"
+          }}
+        >
+        {error}
+        </div>
+      )}
+
+      {success && (
+      <div
+          style={{
+            backgroundColor: "#27ae60",
+            color: "white",
+            padding: "10px",
+            borderRadius: "6px",
+            marginBottom: "20px",
+            maxWidth: "600px",
+            margin: "0 auto 20px auto"
+          }}
+       >
+        {success}
+      </div>
+        )}
 
       <div style={{ marginBottom: '20px', display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
         {sectors.map(sector => (
@@ -221,7 +344,11 @@ function App() {
           disabled={selectedSeats.length === 0 || isPaying}
           onClick={handleConfirm}
           style={{ ...actionBtnStyle, backgroundColor: selectedSeats.length > 0 ? '#2ecc71' : '#7f8c8d' }}>
-          Confirmar Reserva ({selectedSeats.length})
+          {
+            loading
+            ? "Procesando..."
+            : `Confirmar Reserva (${selectedSeats.length})`
+          }
         </button>
       </div>
 
@@ -246,10 +373,10 @@ function App() {
 // Estilos (se mantienen igual que los tenías)
 const navBtnStyle = { position: 'absolute', top: '20px', left: '20px', padding: '8px 15px', backgroundColor: '#34495e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' };
 const logoutBtnStyle = { position: "absolute", top: "20px", right: "20px", padding: "8px 15px", backgroundColor: "#e74c3c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: 'bold' };
-const gridContainerStyle = { display: 'grid', gridTemplateColumns: 'repeat(10, 45px)', gap: '10px', justifyContent: 'center', marginTop: '20px', backgroundColor: '#2c3e50', padding: '20px', borderRadius: '12px' };
+const gridContainerStyle = {display: 'grid',gridTemplateColumns: 'repeat(auto-fit, minmax(45px, 1fr))',gap: '10px',width: '100%',maxWidth: '700px',margin: '20px auto 0 auto',backgroundColor: '#2c3e50',padding: '20px',borderRadius: '12px'};
 const actionBtnStyle = { padding: '12px 25px', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' };
 const overlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.92)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000 };
-const modalStyle = { backgroundColor: '#2c3e50', padding: '50px', borderRadius: '25px', textAlign: 'center', border: '2px solid #f1c40f', boxShadow: '0 0 30px rgba(0,0,0,0.5)', maxWidth: '450px' };
+const modalStyle = {backgroundColor: '#2c3e50',padding: '30px',borderRadius: '25px',textAlign: 'center',border: '2px solid #f1c40f',boxShadow: '0 0 30px rgba(0,0,0,0.5)',width: '90%',maxWidth: '450px'};
 const pagoBtnStyle = { padding: '12px 25px', backgroundColor: '#2ecc71', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
 const cancelBtnStyle = { padding: '12px 25px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
 
