@@ -34,10 +34,9 @@ public class EventRepository : IEventRepository
     public async Task AddAsync(Event newEvent)
     {
         await _context.Events.AddAsync(newEvent);
-        // Quitamos el SaveChanges de acá para que el Handler tenga el control total
+        // Quitamos el SaveChanges de aca para que el Handler tenga el control total
     }
 
-    // --- AGREGÁ ESTE MÉTODO PARA SOLUCIONAR EL ERROR ---
     public async Task<int> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync();

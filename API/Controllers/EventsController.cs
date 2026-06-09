@@ -35,7 +35,7 @@ public class EventsController : ControllerBase
         return Ok(result);
     }
 
-    // NUEVO: Endpoint para obtener sectores de un evento específico
+    // NUEVO: Endpoint para obtener sectores de un evento especifico
     [HttpGet("{eventId}/sectors")]
     public async Task<IActionResult> GetSectors(int eventId)
     {

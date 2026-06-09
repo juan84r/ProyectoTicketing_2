@@ -24,7 +24,7 @@ const AdminDashboard = () => {
     }
     
     try {
-      const response = await fetch("http://localhost:5171/api/v1/admin/events/generate", {
+      const response = await fetch("http://localhost:5171/api/v1/admin/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(eventData)

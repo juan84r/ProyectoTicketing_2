@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Application.UseCases.Seats.Handlers;
 using Application.UseCases.Seats.Commands;
-using Application.Interfaces; // Para el repositorio
+using Application.Interfaces;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Controllers;
 
@@ -10,11 +12,17 @@ namespace API.Controllers;
 public class SeatsController : ControllerBase
 {
     private readonly LockSeatHandler _lockHandler;
-    private readonly ISeatRepository _seatRepository; // Agregamos esto
+    private readonly UnlockSeatHandler _unlockHandler; // 1. Agregamos la variable del nuevo handler
+    private readonly ISeatRepository _seatRepository;
 
-    public SeatsController(LockSeatHandler lockHandler, ISeatRepository seatRepository)
+    // 2. Lo inyectamos en el constructor
+    public SeatsController(
+        LockSeatHandler lockHandler, 
+        UnlockSeatHandler unlockHandler, 
+        ISeatRepository seatRepository)
     {
         _lockHandler = lockHandler;
+        _unlockHandler = unlockHandler;
         _seatRepository = seatRepository;
     }
 
@@ -23,30 +31,19 @@ public class SeatsController : ControllerBase
     {
         var result = await _lockHandler.Handle(command);
         if (result)
-            return Ok(new { message = "Asiento bloqueado por 5 minutos" });
+            return Ok(new { message = "Asientos bloqueados por 5 minutos" });
         
-        return Conflict(new { message = "El asiento ya no está disponible" });
+        return Conflict(new { message = "Uno o más asientos ya no están disponibles" });
     }
 
     [HttpPost("unlock")]
     public async Task<IActionResult> UnlockSeat([FromBody] LockSeatCommand command)
     {
-        // Usamos el repositorio directamente para buscar el asiento
-        var seat = await _seatRepository.GetByIdAsync(command.SeatId);
-
-        // Validamos que el asiento exista y que quien lo quiera liberar sea quien lo bloqueó
-        if (seat != null && seat.LockedByUserId == command.UserId)
-        {
-            seat.Status = "Available";
-            seat.LockedByUserId = null;
-            seat.LockUntil = null;
-            seat.Version++; // Mantenemos la consistencia de la versión
-
-            await _seatRepository.UpdateAsync(seat);
-            await _seatRepository.SaveChangesAsync();
-
+        // 3. Dejamos que el Handler haga su trabajo
+        var result = await _unlockHandler.Handle(command);
+        
+        if (result)
             return Ok(new { message = "Asiento liberado correctamente" });
-        }
 
         return BadRequest(new { message = "No se pudo liberar el asiento" });
     }

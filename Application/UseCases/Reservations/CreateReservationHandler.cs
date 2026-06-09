@@ -34,10 +34,10 @@ public class CreateReservationHandler
             if (seat == null)
                 return ReservationResult.SeatNotFound;
 
-            // --- CAMBIO CLAVE AQUÍ ---
+            // --- CAMBIO CLAVE ACA ---
             // Un asiento se puede comprar si:
-            // 1. Está "Available"
-            // 2. Está "Reserved" PERO el LockedByUserId es el mismo que el de la request
+            // 1. Esta "Available"
+            // 2. Esta "Reserved" PERO el LockedByUserId es el mismo que el de la request
             bool isAvailable = seat.Status == "Available";
             bool isMyLock = seat.Status == "Reserved" && seat.LockedByUserId == request.UserId;
 

@@ -66,7 +66,7 @@ public class ReservationsController : ControllerBase
                 }),
 
             ReservationResult.Success =>
-                Created("",
+                StatusCode(201,
                     new
                     {
                         message =

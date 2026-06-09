@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Login onLogin={() => {}} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/eventos" element={<EventList />} /> 
         <Route path="/reserva/:eventId" element={<App />} /> 

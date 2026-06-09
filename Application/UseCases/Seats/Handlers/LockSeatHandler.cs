@@ -7,9 +7,7 @@ namespace Application.UseCases.Seats.Handlers;
 public class LockSeatHandler
 {
     private readonly ISeatRepository _seatRepository;
-
     private readonly IAuditRepository _auditRepository;
-
     private readonly IUserRepository _userRepository;
 
     public LockSeatHandler(
@@ -18,81 +16,82 @@ public class LockSeatHandler
         IUserRepository userRepository)
     {
         _seatRepository = seatRepository;
-
         _auditRepository = auditRepository;
-
         _userRepository = userRepository;
     }
 
     public async Task<bool> Handle(LockSeatCommand command)
     {
-        var seat = await _seatRepository.GetByIdAsync(command.SeatId);
-
-        if (seat == null)
-            return false;
-
-        // Buscar usuario para auditoría
+        // Buscar usuario para la auditoria (afuera del bucle para no sobrecargar consultas)
         var user = await _userRepository.GetByIdAsync(command.UserId);
+        
+        // Creamos una lista temporal en memoria para acumular los asientos aptos
+        var seatsToLock = new List<Seat>();
 
-        // Lógica:
-        // Disponible
-        // O bloqueo vencido
-        bool isAvailable =
-            seat.Status == "Available";
-
-        bool isExpired =
-            seat.Status == "Reserved" &&
-            seat.LockUntil < DateTime.UtcNow;
-
-        // =========================
-        // BLOQUEO EXITOSO
-        // =========================
-        if (isAvailable || isExpired)
+        // ==========================================================================
+        // FASE 1: VALIDACION ATOMICA (Verificar si todo el paquete esta libre)
+        // ==========================================================================
+        foreach (var seatId in command.SeatIds)
         {
-            seat.Status = "Reserved";
+            var seat = await _seatRepository.GetByIdAsync(seatId);
 
-            seat.LockedByUserId =
-                command.UserId;
+            if (seat == null)
+                return false; // Si un ID no existe en la DB, cancelamos todo el proceso
 
-            seat.LockUntil =
-                DateTime.UtcNow.AddMinutes(5);
+            bool isAvailable = seat.Status == "Available";
+            bool isExpired = seat.Status == "Reserved" && seat.LockUntil < DateTime.UtcNow;
 
-            // Control concurrencia
-            seat.Version++;
-
-            await _seatRepository.UpdateAsync(seat);
-
-            await _seatRepository.SaveChangesAsync();
-
-            // AUDITORÍA
-            await _auditRepository.AddAsync(
-                new AuditLog
+            // Si el asiento NO esta disponible Y tampoco vencio su reserva previa...
+            if (!isAvailable && !isExpired)
+            {
+                // Registramos en auditoria que este intento masivo fallo debido a este asiento ocupado
+                await _auditRepository.AddAsync(new AuditLog
                 {
                     UserId = user?.Id,
-                    Action = "Seat Temporarily Reserved",
+                    Action = "Reservation Failed - Seat Occupied",
                     EntityType = "Seat",
                     EntityId = seat.Id.ToString(),
-                    Details = $"Bloqueo temporal asiento {seat.SeatNumber}",
+                    Details = $"Conflicto: Intento de bloqueo masivo falló por asiento {seat.SeatNumber} ocupado.",
                     Timestamp = DateTime.UtcNow
                 });
 
-            return true;
+                return false; // Cortamos la ejecucion. No se bloquea NADA del grupo.
+            }
+
+            // Si esta apto, lo guardamos temporalmente en nuestra lista de memoria
+            seatsToLock.Add(seat);
         }
 
-        // =========================
-        // FALLÓ POR CONCURRENCIA
-        // =========================
-        await _auditRepository.AddAsync(
-            new AuditLog
+        // ==========================================================================
+        // FASE 2: APLICACION DEL BLOQUEO (Solo llegamos aca si TODOS estaban libres)
+        // ==========================================================================
+        foreach (var seat in seatsToLock)
+        {
+            seat.Status = "Reserved";
+            seat.LockedByUserId = command.UserId;
+            seat.LockUntil = DateTime.UtcNow.AddMinutes(5);
+
+            // Incrementamos la version para el control de concurrencia optimista
+            seat.Version++;
+
+            // Marcamos el asiento modificado en el rastreador de Entity Framework
+            await _seatRepository.UpdateAsync(seat);
+
+            // Grabamos una auditoria individual por cada asiento congelado con exito
+            await _auditRepository.AddAsync(new AuditLog
             {
                 UserId = user?.Id,
-                Action = "Reservation Failed - Concurrency",
+                Action = "Seat Temporarily Reserved",
                 EntityType = "Seat",
                 EntityId = seat.Id.ToString(),
-                Details = $"Conflicto concurrencia asiento {seat.SeatNumber}",
+                Details = $"Bloqueo temporal masivo - Asiento {seat.SeatNumber}",
                 Timestamp = DateTime.UtcNow
             });
+        }
 
-        return false;
+        // Impactamos todos los cambios juntos en la base de datos en una unica transaccion
+        await _seatRepository.SaveChangesAsync();
+
+        return true;
     }
 }

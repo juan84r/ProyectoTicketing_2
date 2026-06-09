@@ -12,13 +12,23 @@ const EventList = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost:5171/api/v1/events?page=1&pageSize=10")
-      .then(res => res.json())
-      .then(data => setEvents(data.data))
-      .catch(err => {
-        console.error("Error cargando eventos:", err);
-        setError("No se pudieron cargar los eventos.");
-      });
+  fetch("http://localhost:5171/api/v1/events?page=1&pageSize=10")
+    .then(res => res.json())
+    .then(data => {
+      // CAMBIO: Si C# devuelve la lista en la propiedad .events, la usamos.
+      // Ponemos el condicional por si acaso devuelva directo el array
+      if (data.events) {
+        setEvents(data.events);
+      } else if (data.data) {
+        setEvents(data.data);
+      } else {
+        setEvents(data);
+      }
+    })
+    .catch(err => {
+      console.error("Error cargando eventos:", err);
+      setError("No se pudieron cargar los eventos.");
+    });
   }, []);
 
   const fetchMyReservations = async () => {

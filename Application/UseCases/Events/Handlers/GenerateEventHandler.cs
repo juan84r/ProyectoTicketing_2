@@ -23,7 +23,9 @@ public class GenerateEventHandler
         var newEvent = new Event 
         { 
             Name = command.Name,
-            Venue = command.Venue 
+            Venue = command.Venue,
+            EventDate = command.EventDate,
+            Status = "Active"
         };
         
         await _eventRepository.AddAsync(newEvent);

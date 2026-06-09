@@ -38,7 +38,7 @@ public class LoginHandler
             return null;
         }
 
-        // 3. Si todo está bien, devolvemos el usuario completo (incluyendo el Role)
+        // 3. Si todo esta bien, devolvemos el usuario completo (incluyendo el Role)
         return user;
     }
 }

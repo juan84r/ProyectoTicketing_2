@@ -34,15 +34,15 @@ public class AuthController : ControllerBase
         });
     }
     [HttpPost("register")]
-
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-    var result = await _registerHandler.Handle(request);
+        var result = await _registerHandler.Handle(request);
 
-    if (!result)
-        return BadRequest("El usuario ya existe");
+        if (!result)
+            return BadRequest(new { message = "El usuario ya existe" });
 
-    return Ok("Usuario creado");
+        // CAMBIO PREMIUM: Devolvemos codigo 201 (Created) y un JSON estructurado
+        return StatusCode(201, new { message = "Usuario creado con éxito" });
     }
 
 }

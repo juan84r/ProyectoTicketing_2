@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================================================
-// SERVICIOS BÁSICOS
+// SERVICIOS BASICOS
 // ==========================================================================
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -52,6 +52,7 @@ builder.Services.AddScoped<CreateReservationHandler>();
 
 // Asientos
 builder.Services.AddScoped<LockSeatHandler>();
+builder.Services.AddScoped<UnlockSeatHandler>();
 
 // ==========================================================================
 // CORS

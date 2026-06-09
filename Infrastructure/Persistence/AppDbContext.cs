@@ -18,7 +18,7 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // --- CONFIGURACIONES TÉCNICAS ---
+        // --- CONFIGURACIONES TECNICAS ---
         modelBuilder.Entity<Sector>()
             .Property(s => s.Price)
             .HasPrecision(18, 2);
@@ -27,7 +27,7 @@ public class AppDbContext : DbContext
             .Property(s => s.Version)
             .IsConcurrencyToken();
 
-        // RESTRICCIÓN DE UNICIDAD: Evita que existan dos asientos con el mismo número en el mismo sector
+        // RESTRICCION DE UNICIDAD: Evita que existan dos asientos con el mismo numero en el mismo sector
         modelBuilder.Entity<Seat>()
             .HasIndex(s => new { s.SectorId, s.SeatNumber })
             .IsUnique();
@@ -41,7 +41,7 @@ public class AppDbContext : DbContext
         {
             Id = 1,
             Email = "admin@test.com",
-            Password = BCrypt.Net.BCrypt.HashPassword("1234"), // O el hash de BCrypt: "$2a$11$Ev9.iP6W.6B9X.xY..."
+            Password = BCrypt.Net.BCrypt.HashPassword("1234"), // O el hash de BCrypt: "$2a.."
             Role = "Admin" 
         });
 
@@ -67,7 +67,7 @@ var sectores = new List<Sector>
 };
 modelBuilder.Entity<Sector>().HasData(sectores);
 
-// 3. Asientos (Lógica idéntica al Handler)
+// 3. Asientos (Lógica identica al Handler)
 var seats = new List<Seat>();
 foreach (var sector in sectores)
 {
@@ -78,7 +78,7 @@ foreach (var sector in sectores)
     {
         seats.Add(new Seat 
         { 
-            // El ID debe ser único, usamos el sector.Id para diferenciar
+            // El ID debe ser unico, usamos el sector.Id para diferenciar
             Id = new Guid($"00000000-0000-0000-{sector.Id:D4}-{contadorAsiento:D12}"), 
             SectorId = sector.Id, 
             RowIdentifier = sector.Name.Substring(sector.Name.Length - 1), 
