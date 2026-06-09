@@ -5,7 +5,7 @@ using Application.UseCases.Events.Commands;
 namespace API.Controllers;
 
 [ApiController]
-[Route("api/v1/admin")]
+[Route("api/v1/events")]
 public class AdminController : ControllerBase
 {
     private readonly GenerateEventHandler _handler;
@@ -15,7 +15,7 @@ public class AdminController : ControllerBase
         _handler = handler;
     }
 
-    [HttpPost("events/generate")]
+    [HttpPost]
     public async Task<IActionResult> Generate([FromBody] GenerateEventCommand command)
     {
         var result = await _handler.Handle(command);

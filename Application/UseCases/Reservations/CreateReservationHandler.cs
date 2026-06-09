@@ -2,12 +2,14 @@ using Application.Interfaces;
 using Domain.Entities;
 using Application.UseCases.Reservations;
 
+
 public class CreateReservationHandler
 {
     private readonly ISeatRepository _seatRepository;
     private readonly IReservationRepository _reservationRepository;
     private readonly IUserRepository _userRepository;
     private readonly IAuditRepository _auditRepository;
+    
 
     public CreateReservationHandler(
         ISeatRepository seatRepository,
@@ -61,21 +63,25 @@ public class CreateReservationHandler
             await _seatRepository.UpdateAsync(seat);
 
             var reservation = new Reservation
-            {
+           {
                 Id = Guid.NewGuid(),
                 SeatId = seat.Id,
                 UserId = request.UserId,
                 ReservedAt = DateTime.UtcNow,
-                SeatNumber = seat.SeatNumber
+                ExpiresAt = DateTime.UtcNow.AddMinutes(5),
+                Status = "Completed",
+                 SeatNumber = seat.SeatNumber
             };
 
             await _reservationRepository.AddAsync(reservation);
 
             var log = new AuditLog
             {
-                Action = "Seat Purchased", // Cambié el texto para diferenciarlo del bloqueo
-                User = user.Email,
-                Resource = $"Asiento {seat.SeatNumber}",
+                UserId = user.Id,
+                Action = "Seat Purchased",
+                EntityType = "Seat",
+                EntityId = seat.Id.ToString(),
+                Details = $"Compra asiento {seat.SeatNumber}",
                 Timestamp = DateTime.UtcNow
             };
 

@@ -68,17 +68,12 @@ public class LockSeatHandler
             await _auditRepository.AddAsync(
                 new AuditLog
                 {
-                    Action =
-                        "Seat Temporarily Reserved",
-
-                    User =
-                        user?.Email ?? "Unknown",
-
-                    Resource =
-                        $"Asiento {seat.SeatNumber}",
-
-                    Timestamp =
-                        DateTime.UtcNow
+                    UserId = user?.Id,
+                    Action = "Seat Temporarily Reserved",
+                    EntityType = "Seat",
+                    EntityId = seat.Id.ToString(),
+                    Details = $"Bloqueo temporal asiento {seat.SeatNumber}",
+                    Timestamp = DateTime.UtcNow
                 });
 
             return true;
@@ -90,17 +85,12 @@ public class LockSeatHandler
         await _auditRepository.AddAsync(
             new AuditLog
             {
-                Action =
-                    "Reservation Failed - Concurrency",
-
-                User =
-                    user?.Email ?? "Unknown",
-
-                Resource =
-                    $"Asiento {seat.SeatNumber}",
-
-                Timestamp =
-                    DateTime.UtcNow
+                UserId = user?.Id,
+                Action = "Reservation Failed - Concurrency",
+                EntityType = "Seat",
+                EntityId = seat.Id.ToString(),
+                Details = $"Conflicto concurrencia asiento {seat.SeatNumber}",
+                Timestamp = DateTime.UtcNow
             });
 
         return false;

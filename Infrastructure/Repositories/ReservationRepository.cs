@@ -14,10 +14,9 @@ public class ReservationRepository : IReservationRepository
         _context = context;
     }
 
-    public async Task AddAsync(Reservation reservation)
+   public async Task AddAsync(Reservation reservation)
     {
-        await _context.Reservations.AddAsync(reservation);
-        await _context.SaveChangesAsync();
+     await _context.Reservations.AddAsync(reservation);
     }
 
  public async Task<IEnumerable<Reservation>> GetByUserIdAsync(int userId)

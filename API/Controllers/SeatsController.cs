@@ -25,7 +25,7 @@ public class SeatsController : ControllerBase
         if (result)
             return Ok(new { message = "Asiento bloqueado por 5 minutos" });
         
-        return BadRequest(new { message = "El asiento ya no está disponible" });
+        return Conflict(new { message = "El asiento ya no está disponible" });
     }
 
     [HttpPost("unlock")]

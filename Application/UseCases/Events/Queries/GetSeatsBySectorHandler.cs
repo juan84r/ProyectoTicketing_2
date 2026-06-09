@@ -16,13 +16,9 @@ public class GetSeatsBySectorHandler
 
     public async Task<IEnumerable<SeatResponse>?> HandleAsync(int sectorId)
 {
-    // Buscamos todos los eventos con sus sectores y asientos cargados
-    var events = await _eventRepository.GetAllEventsAsync();
-    
-    // Buscamos el sector específico dentro de cualquier evento
-    var sector = events
-        .SelectMany(e => e.Sectors)
-        .FirstOrDefault(s => s.Id == sectorId);
+    var sector =
+    await _eventRepository
+        .GetSectorByIdAsync(sectorId);
     
     if (sector == null || sector.Seats == null) 
     {

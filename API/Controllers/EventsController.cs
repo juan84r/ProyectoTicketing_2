@@ -24,9 +24,14 @@ public class EventsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        int page = 1,
+        int pageSize = 10)
     {
-        var result = await _getEventsHandler.HandleAsync();
+        var result =
+            await _getEventsHandler
+                .HandleAsync(page, pageSize);
+
         return Ok(result);
     }
 

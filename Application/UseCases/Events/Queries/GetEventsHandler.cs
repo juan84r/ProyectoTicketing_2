@@ -12,17 +12,36 @@ public class GetEventsHandler
         _eventRepository = eventRepository;
     }
 
-    public async Task<IEnumerable<EventResponse>> HandleAsync()
+    public async Task<PagedEventsResponse> HandleAsync(
+        int page,
+        int pageSize)
     {
-        var events = await _eventRepository.GetAllEventsAsync();
-        
-        // Convertimos las entidades de base de datos a DTOs para la API
-        return events.Select(e => new EventResponse(
-            e.Id, 
-            e.Name, 
-            e.EventDate, 
-            e.Venue, 
-            e.Status
-        ));
+        var events =
+            await _eventRepository.GetAllEventsAsync();
+
+        var total =
+            await _eventRepository.GetTotalEventsAsync();
+
+        var pagedEvents = events
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(e => new EventResponse(
+                e.Id,
+                e.Name,
+                e.EventDate,
+                e.Venue,
+                e.Status
+            ))
+            .ToList();
+
+        return new PagedEventsResponse
+        {
+         Total = total,
+
+            HasNext =
+             page * pageSize < total,
+
+         Data = pagedEvents
+        };
     }
 }

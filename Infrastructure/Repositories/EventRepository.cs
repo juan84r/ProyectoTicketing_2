@@ -42,4 +42,15 @@ public class EventRepository : IEventRepository
     {
         return await _context.SaveChangesAsync();
     }
+
+    public async Task<Sector?> GetSectorByIdAsync(int sectorId)
+    {
+        return await _context.Sectors
+            .Include(s => s.Seats) // Incluimos los asientos del sector
+            .FirstOrDefaultAsync(s => s.Id == sectorId);
+    }
+    public async Task<int> GetTotalEventsAsync()
+    {
+    return await _context.Events.CountAsync();
+    }
 }

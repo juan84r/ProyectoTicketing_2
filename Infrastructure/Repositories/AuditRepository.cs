@@ -14,8 +14,7 @@ public class AuditRepository : IAuditRepository
 
     public async Task AddAsync(AuditLog log)
     {
-        _context.AuditLogs.Add(log);
-        await _context.SaveChangesAsync();
+     await _context.AuditLogs.AddAsync(log);
     }
     public async Task<IEnumerable<AuditLog>> GetAllAsync()
     {

@@ -19,11 +19,10 @@ public class SeatRepository : ISeatRepository
         return await _context.Seats.FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public async Task UpdateAsync(Seat seat)
+    public Task UpdateAsync(Seat seat)
     {
         _context.Seats.Update(seat);
-        // Nota: El SaveChanges se suele llamar al final de la transacción en el Handler
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 
     public async Task AddAsync(Seat seat)
