@@ -11,11 +11,13 @@ public class SeatsController : ControllerBase
 {
     private readonly LockSeatHandler _lockHandler;
     private readonly ISeatRepository _seatRepository; // Agregamos esto
+    private readonly UnlockSeatHandler _unlockHandler;
 
-    public SeatsController(LockSeatHandler lockHandler, ISeatRepository seatRepository)
+    public SeatsController(LockSeatHandler lockHandler, ISeatRepository seatRepository, UnlockSeatHandler unlockHandler)
     {
         _lockHandler = lockHandler;
         _seatRepository = seatRepository;
+        _unlockHandler = unlockHandler;
     }
 
     [HttpPost("lock")]
@@ -28,26 +30,26 @@ public class SeatsController : ControllerBase
         return Conflict(new { message = "El asiento ya no está disponible" });
     }
 
-    [HttpPost("unlock")]
-    public async Task<IActionResult> UnlockSeat([FromBody] LockSeatCommand command)
+   [HttpPost("unlock")]
+    public async Task<IActionResult> UnlockSeat(
+        [FromBody] LockSeatCommand command)
     {
-        // Usamos el repositorio directamente para buscar el asiento
-        var seat = await _seatRepository.GetByIdAsync(command.SeatId);
+        var result =
+            await _unlockHandler.Handle(
+                command.SeatId,
+                command.UserId);
 
-        // Validamos que el asiento exista y que quien lo quiera liberar sea quien lo bloqueó
-        if (seat != null && seat.LockedByUserId == command.UserId)
+        if (result)
         {
-            seat.Status = "Available";
-            seat.LockedByUserId = null;
-            seat.LockUntil = null;
-            seat.Version++; // Mantenemos la consistencia de la versión
-
-            await _seatRepository.UpdateAsync(seat);
-            await _seatRepository.SaveChangesAsync();
-
-            return Ok(new { message = "Asiento liberado correctamente" });
+            return Ok(new
+            {
+                message = "Asiento liberado correctamente"
+            });
         }
 
-        return BadRequest(new { message = "No se pudo liberar el asiento" });
+        return BadRequest(new
+        {   
+            message = "No se pudo liberar el asiento"
+        });
     }
 }

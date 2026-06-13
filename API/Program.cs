@@ -8,6 +8,7 @@ using Application.UseCases.Seats.Handlers;
 using Infrastructure.Persistence;
 using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,10 @@ builder.Services.AddScoped<CreateReservationHandler>();
 
 // Asientos
 builder.Services.AddScoped<LockSeatHandler>();
+builder.Services.AddScoped<UnlockSeatHandler>();
+
+// Servicios
+builder.Services.AddHostedService<ReservationCleanupService>();
 
 // ==========================================================================
 // CORS
