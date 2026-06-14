@@ -82,7 +82,14 @@ function App() {
 
   // --- LOGICA DE INTERACCION ---
   const toggleSeat = (seatId, status) => {
-    if (status !== 'Available' || isPaying) return;
+    if (isPaying) return; // Si esta en la pantalla de pago, no dejamos tocar nada
+
+    const yaLoSeleccione = selectedSeats.includes(seatId);
+
+    if (status !== 'Available' && !yaLoSeleccione) {
+      return; // Si es rojo y no era nuestro, ahi si bloqueamos el clic
+    }
+
     setSelectedSeats(prev => 
       prev.includes(seatId) ? prev.filter(id => id !== seatId) : [...prev, seatId]
     );
@@ -243,7 +250,9 @@ function App() {
               style={{
                 width: '45px', height: '45px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 'bold', transition: '0.2s',
                 cursor: !isOccupied && !isPaying ? 'pointer' : 'not-allowed',
-                backgroundColor: selectedSeats.includes(seat.id) ? '#3498db' : (isOccupied ? '#c0392b' : '#27ae60'),
+                //backgroundColor: selectedSeats.includes(seat.id) ? '#3498db' : (isOccupied ? '#c0392b' : '#27ae60'),
+                // Reemplazo para la linea del backgroundColor dentro del seats.map:
+                backgroundColor: isOccupied && selectedSeats.includes(seat.id) ? '#9b59b6': selectedSeats.includes(seat.id) ? '#3498db' : (isOccupied ? '#c0392b' : '#27ae60'),
                 transform: selectedSeats.includes(seat.id) ? 'scale(1.1)' : 'scale(1)',
                 border: '1px solid rgba(255,255,255,0.1)'
               }}>
