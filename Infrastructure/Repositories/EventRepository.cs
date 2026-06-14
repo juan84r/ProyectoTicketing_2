@@ -14,14 +14,17 @@ public class EventRepository : IEventRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Event>> GetAllEventsAsync()
-    {
-    // Agregamos los Includes para que la lista no venga "pelada"
+    public async Task<IEnumerable<Event>> GetAllEventsAsync(int page, int pageSize)
+{
+    // La base de datos ahora filtra, ordena y corta la porcion exacta
     return await _context.Events
-        .Include(e => e.Sectors)         // Trae los sectores de cada evento
-        .ThenInclude(s => s.Seats)   // Trae los asientos de cada sector
-        .ToListAsync();
-    }
+        .AsNoTracking()                  // 1. Apaga el rastreo (ahorra muchisima RAM)
+        .Include(e => e.Sectors)         // 2. Trae los sectores si los necesita
+        .OrderBy(e => e.Id)              // 3. Ordenamos por ID (obligatorio para el Skip)
+        .Skip((page - 1) * pageSize)     // 4. Salta los eventos de paginas anteriores
+        .Take(pageSize)                  // 5. Agarra solo la cantidad solicitada
+        .ToListAsync();                  // 6. Recien aca viaja a PostgreSQL
+}
 
     public async Task<Event?> GetEventByIdAsync(int id)
     {
