@@ -10,9 +10,7 @@ namespace API.Controllers;
 public class ReservationsController : ControllerBase
 {
     private readonly CreateReservationHandler _handler;
-
     private readonly IReservationRepository _reservationRepository;
-
     private readonly IUserRepository _userRepository;
 
     // =========================
@@ -24,12 +22,8 @@ public class ReservationsController : ControllerBase
         IUserRepository userRepository)
     {
         _handler = handler;
-
-        _reservationRepository =
-            reservationRepository;
-
-        _userRepository =
-            userRepository;
+        _reservationRepository = reservationRepository;
+        _userRepository = userRepository;
     }
 
     // =========================
@@ -39,47 +33,18 @@ public class ReservationsController : ControllerBase
     public async Task<IActionResult> Create(
         CreateReservationRequest request)
     {
-        var result =
-            await _handler.Handle(request);
-
+        var result = await _handler.Handle(request);
         return result switch
         {
-            ReservationResult.SeatNotFound =>
-                NotFound(new
-                {
-                    message =
-                        "El asiento no existe"
-                }),
+            ReservationResult.SeatNotFound => NotFound(new { message = "El asiento no existe" }),
 
-            ReservationResult.SeatAlreadyReserved =>
-                Conflict(new
-                {
-                    message =
-                        "El asiento ya está reservado"
-                }),
+            ReservationResult.SeatAlreadyReserved => Conflict(new{ message = "El asiento ya está reservado" }),
 
-            ReservationResult.UserNotFound =>
-                NotFound(new
-                {
-                    message =
-                        "El usuario no existe"
-                }),
+            ReservationResult.UserNotFound => NotFound(new { message = "El usuario no existe" }),
 
-            ReservationResult.Success =>
-                StatusCode(201,
-                    new
-                    {
-                        message =
-                            "Reserva realizada correctamente"
-                    }),
+            ReservationResult.Success => StatusCode(201, new { message = "Reserva realizada correctamente" }),
 
-            _ =>
-                StatusCode(500,
-                    new
-                    {
-                        message =
-                            "Error inesperado"
-                    })
+            _ => StatusCode(500, new { message = "Error inesperado" })  // Caso Default
         };
     }
 
@@ -93,26 +58,18 @@ public class ReservationsController : ControllerBase
         // =========================
         // VALIDAR USUARIO
         // =========================
-        var user =
-            await _userRepository
-                .GetByIdAsync(userId);
+        var user = await _userRepository.GetByIdAsync(userId);
 
         // Usuario inexistente
         if (user == null)
         {
-            return NotFound(new
-            {
-                message =
-                    "Usuario no encontrado"
-            });
+            return NotFound(new { message = "Usuario no encontrado" });
         }
 
         // =========================
         // OBTENER RESERVAS
         // =========================
-        var reservations =
-            await _reservationRepository
-                .GetByUserIdAsync(userId);
+        var reservations = await _reservationRepository.GetByUserIdAsync(userId);
 
         // =========================
         // MAPEAR DTO SIMPLE
@@ -121,20 +78,10 @@ public class ReservationsController : ControllerBase
             .Select(r => new
             {
                 id = r.Id,
-
-                seatNumber =
-                    r.SeatNumber,
-
-                reservedAt =
-                    r.ReservedAt,
-
-                eventName =
-                    r.Seat?.Sector?.Event?.Name
-                    ?? "Evento no encontrado",
-
-                sectorName =
-                    r.Seat?.Sector?.Name
-                    ?? "Sector no encontrado"
+                seatNumber = r.SeatNumber,
+                reservedAt = r.ReservedAt,
+                eventName = r.Seat?.Sector?.Event?.Name?? "Evento no encontrado",
+                sectorName = r.Seat?.Sector?.Name?? "Sector no encontrado"
             })
             .ToList();
 

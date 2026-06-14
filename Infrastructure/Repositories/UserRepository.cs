@@ -21,12 +21,12 @@ public class UserRepository : IUserRepository
     }
     public async Task AddAsync(User user)
     {
-    await _context.Users.AddAsync(user);
-    await _context.SaveChangesAsync();
+        await _context.Users.AddAsync(user);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<User?> GetByIdAsync(int id)
     {
-    return await _context.Users.FindAsync(id);
+        return await _context.Users.FindAsync(id);
     }
 }

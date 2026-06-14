@@ -9,6 +9,6 @@ public interface IEventRepository
     Task<Sector?> GetSectorByIdAsync(int sectorId);
     Task<int> GetTotalEventsAsync();
     Task AddAsync(Event newEvent);
-    Task<int> SaveChangesAsync(); // Agregar esto
+    Task<int> SaveChangesAsync();
     
 }

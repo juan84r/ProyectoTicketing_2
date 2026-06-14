@@ -8,9 +8,9 @@ public class Reservation
 
     public int UserId { get; set; }
 
-    public DateTime ReservedAt { get; set; }
+    public DateTime ReservedAt { get; set; } = DateTime.UtcNow;
 
-    public DateTime ExpiresAt { get; set; }
+    public DateTime ExpiresAt { get; set; } = DateTime.UtcNow;
 
     public string Status { get; set; } = "Reserved";
 

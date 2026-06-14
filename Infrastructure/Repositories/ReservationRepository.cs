@@ -14,19 +14,19 @@ public class ReservationRepository : IReservationRepository
         _context = context;
     }
 
-   public async Task AddAsync(Reservation reservation)
+    public async Task AddAsync(Reservation reservation)
     {
      await _context.Reservations.AddAsync(reservation);
     }
 
- public async Task<IEnumerable<Reservation>> GetByUserIdAsync(int userId)
-{
-    return await _context.Reservations
-        .Include(r => r.Seat)                           // Trae el Asiento
-            .ThenInclude(s => s.Sector)                 // Trae el Sector
-                .ThenInclude(sec => sec.Event)          // Trae el Evento
-        .Where(r => r.UserId == userId)
-        .OrderByDescending(r => r.ReservedAt)
-        .ToListAsync();
-}
+    public async Task<IEnumerable<Reservation>> GetByUserIdAsync(int userId)
+    {
+        return await _context.Reservations
+            .Include(r => r.Seat)                   // Trae el Asiento
+            .ThenInclude(s => s.Sector)             // Trae el Sector
+            .ThenInclude(sec => sec.Event)          // Trae el Evento
+            .Where(r => r.UserId == userId)
+            .OrderByDescending(r => r.ReservedAt)
+            .ToListAsync();
+    }
 }

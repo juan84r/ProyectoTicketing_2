@@ -11,7 +11,7 @@ public class Seat
     public string Status { get; set; } = "Available"; // "Available", "Reserved", "Sold"
 
     // --- NUEVOS CAMPOS PARA EL BLOQUEO TEMPORAL ---
-    public DateTime? LockUntil { get; set; } // Fecha y hora en que expira el bloqueo
+    public DateTime? LockUntil { get; set; } = DateTime.UtcNow; // Fecha y hora en que expira el bloqueo
     public int? LockedByUserId { get; set; } // ID del usuario que lo tiene "congelado"
     // ----------------------------------------------
 

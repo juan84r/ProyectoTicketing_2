@@ -16,11 +16,9 @@ public class GetEventsHandler
         int page,
         int pageSize)
     {
-        var events =
-            await _eventRepository.GetAllEventsAsync();
+        var events = await _eventRepository.GetAllEventsAsync();
 
-        var total =
-            await _eventRepository.GetTotalEventsAsync();
+        var total = await _eventRepository.GetTotalEventsAsync();
 
         var pagedEvents = events
             .Skip((page - 1) * pageSize)
@@ -36,12 +34,9 @@ public class GetEventsHandler
 
         return new PagedEventsResponse
         {
-         Total = total,
-
-            HasNext =
-             page * pageSize < total,
-
-         Data = pagedEvents
+            Total = total,
+            HasNext = page * pageSize < total,
+            Data = pagedEvents
         };
     }
 }

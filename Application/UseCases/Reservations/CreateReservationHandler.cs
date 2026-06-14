@@ -2,7 +2,6 @@ using Application.Interfaces;
 using Domain.Entities;
 using Application.UseCases.Reservations;
 
-
 public class CreateReservationHandler
 {
     private readonly ISeatRepository _seatRepository;
@@ -70,7 +69,7 @@ public class CreateReservationHandler
                 ReservedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(5),
                 Status = "Completed",
-                 SeatNumber = seat.SeatNumber
+                SeatNumber = seat.SeatNumber
             };
 
             await _reservationRepository.AddAsync(reservation);
@@ -87,8 +86,7 @@ public class CreateReservationHandler
 
             await _auditRepository.AddAsync(log);
         }
-
-        
+ 
         await _seatRepository.SaveChangesAsync();
 
         return ReservationResult.Success;

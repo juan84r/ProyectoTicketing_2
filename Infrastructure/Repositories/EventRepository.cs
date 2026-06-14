@@ -15,19 +15,19 @@ public class EventRepository : IEventRepository
     }
 
     public async Task<IEnumerable<Event>> GetAllEventsAsync()
-{
+    {
     // Agregamos los Includes para que la lista no venga "pelada"
     return await _context.Events
         .Include(e => e.Sectors)         // Trae los sectores de cada evento
-            .ThenInclude(s => s.Seats)   // Trae los asientos de cada sector
+        .ThenInclude(s => s.Seats)   // Trae los asientos de cada sector
         .ToListAsync();
-}
+    }
 
     public async Task<Event?> GetEventByIdAsync(int id)
     {
         return await _context.Events
             .Include(e => e.Sectors)
-                .ThenInclude(s => s.Seats)
+            .ThenInclude(s => s.Seats)
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
@@ -48,6 +48,7 @@ public class EventRepository : IEventRepository
             .Include(s => s.Seats) // Incluimos los asientos del sector
             .FirstOrDefaultAsync(s => s.Id == sectorId);
     }
+    
     public async Task<int> GetTotalEventsAsync()
     {
     return await _context.Events.CountAsync();

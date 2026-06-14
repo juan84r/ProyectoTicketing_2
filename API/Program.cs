@@ -22,8 +22,7 @@ builder.Services.AddSwaggerGen();
 // BASE DE DATOS
 // ==========================================================================
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // ==========================================================================
 // REPOSITORIOS
