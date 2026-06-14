@@ -7,6 +7,7 @@ public interface IAuditRepository
 {
     Task AddAsync(AuditLog log);
     Task<IEnumerable<AuditLog>> GetAllAsync();
+    Task SaveChangesAsync();
     
 }
 

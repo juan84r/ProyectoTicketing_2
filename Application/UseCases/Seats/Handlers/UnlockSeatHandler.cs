@@ -12,7 +12,7 @@ public class UnlockSeatHandler
     private readonly ISeatRepository _seatRepository;
     private readonly IAuditRepository _auditRepository;
     private readonly IUserRepository _userRepository;
-
+    
     public UnlockSeatHandler(
         ISeatRepository seatRepository,
         IAuditRepository auditRepository,

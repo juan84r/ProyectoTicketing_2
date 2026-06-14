@@ -55,6 +55,8 @@ public class LockSeatHandler
                     Timestamp = DateTime.UtcNow
                 });
 
+                await _seatRepository.SaveChangesAsync();
+
                 return false; // Cortamos la ejecucion. No se bloquea NADA del grupo.
             }
 

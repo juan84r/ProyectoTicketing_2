@@ -11,12 +11,19 @@ public class AuditRepository : IAuditRepository
     {
         _context = context;
     }
+
     public async Task AddAsync(AuditLog log)
     {
      await _context.AuditLogs.AddAsync(log);
     }
+    
     public async Task<IEnumerable<AuditLog>> GetAllAsync()
     {
         return await _context.AuditLogs.ToListAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
     }
 }
